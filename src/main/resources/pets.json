@@ -1,0 +1,112 @@
+[
+  {
+    "name": "Bella",
+    "type": "Dog",
+    "breed": "Labrador Retriever",
+    "age": 3,
+    "description": "Friendly, energetic, and playful.",
+    "adoptionStatus": "AVAILABLE",
+    "owner": {
+      "id": 1
+    }
+  },
+  {
+    "name": "Milo",
+    "type": "Cat",
+    "breed": "British Shorthair",
+    "age": 2,
+    "description": "Calm, cuddly, and loves warm places.",
+    "adoptionStatus": "AVAILABLE",
+    "owner": {
+      "id": 1
+    }
+  },
+  {
+    "name": "Rex",
+    "type": "Dog",
+    "breed": "German Shepherd",
+    "age": 5,
+    "description": "Loyal, protective, and well-trained.",
+    "adoptionStatus": "AVAILABLE",
+    "owner": {
+      "id": 1
+    }
+  },
+  {
+    "name": "Luna",
+    "type": "Cat",
+    "breed": "Siamese",
+    "age": 1,
+    "description": "Very vocal and affectionate.",
+    "adoptionStatus": "AVAILABLE",
+    "owner": {
+      "id": 2
+    }
+  },
+  {
+    "name": "Charlie",
+    "type": "Dog",
+    "breed": "Beagle",
+    "age": 4,
+    "description": "Loves exploring and sniffing everything.",
+    "adoptionStatus": "AVAILABLE",
+    "owner": {
+      "id": 2
+    }
+  },
+  {
+    "name": "Nibbles",
+    "type": "Rabbit",
+    "breed": "Mini Lop",
+    "age": 2,
+    "description": "Soft, shy, and enjoys carrots.",
+    "adoptionStatus": "AVAILABLE",
+    "owner": {
+      "id": 3
+    }
+  },
+  {
+    "name": "Kiko",
+    "type": "Bird",
+    "breed": "Cockatiel",
+    "age": 1,
+    "description": "Whistles a lot and enjoys attention.",
+    "adoptionStatus": "AVAILABLE",
+    "owner": {
+      "id": 3
+    }
+  },
+  {
+    "name": "Spike",
+    "type": "Dog",
+    "breed": "Bulldog",
+    "age": 6,
+    "description": "Calm, strong, and gentle.",
+    "adoptionStatus": "AVAILABLE",
+    "owner": {
+      "id": 1
+    }
+  },
+  {
+    "name": "Shadow",
+    "type": "Cat",
+    "breed": "Black Domestic Shorthair",
+    "age": 3,
+    "description": "Quiet and likes hiding in dark corners.",
+    "adoptionStatus": "AVAILABLE",
+    "owner": {
+      "id": 2
+    }
+  },
+  {
+    "name": "Pumpkin",
+    "type": "Hamster",
+    "breed": "Syrian",
+    "age": 1,
+    "description": "Small, fast, and loves running on the wheel.",
+    "adoptionStatus": "AVAILABLE",
+    "owner": {
+      "id": 3
+    }
+  }
+]

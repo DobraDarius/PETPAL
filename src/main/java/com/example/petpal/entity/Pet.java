@@ -7,6 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
+@Table(name = "pets")
 public class Pet {
 
     @Id
@@ -14,43 +15,35 @@ public class Pet {
     private Long id;
 
     private String name;
+
+    // Cat, Dog, Bird, etc.
     private String type;
+
+    private String breed;
+
     private Integer age;
 
-    public Pet() {
-    }
+    @Column(length = 1000)
+    private String description;
 
-    public Pet(String name, String type, Integer age) {
+    // URL from Firebase Storage
+    private String imageUrl;
+
+    // AVAILABLE, PENDING, ADOPTED
+    private String adoptionStatus = "AVAILABLE";
+
+    // Foreign key -> User (owner/shelter)
+    @ManyToOne
+    @JoinColumn(name = "owner_id")
+    private User owner;
+
+    public Pet() {}
+
+    public Pet(String name, String type, String breed, Integer age, String description) {
         this.name = name;
         this.type = type;
+        this.breed = breed;
         this.age = age;
-    }
-
-    public Long getId() {
-        return id;
-    }
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getType() {
-        return type;
-    }
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public Integer getAge() {
-        return age;
-    }
-    public void setAge(Integer age) {
-        this.age = age;
+        this.description = description;
     }
 }
