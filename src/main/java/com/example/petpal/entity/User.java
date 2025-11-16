@@ -15,11 +15,16 @@ public class User {
     private Long id;
 
     private String name;
+
     private String email;
+
+    private String password; // required for auth
+
     private String address;
+
     private String phone;
 
-    // ADOPTER or OWNER
+    // ADOPTER or SHELTER
     private String role;
 
     public User() {}
