@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PetPal - Firebase Upload</title>
+</head>
+<body>
+
+  <h1>Firebase Upload Test</h1>
+
+  <input type="file" id="fileInput" />
+  <button id="uploadBtn">Upload to Firebase</button>
+
+  <script type="module">
+    console.log("Script loaded!");
+
+    // IMPORT FIREBASE MODULES **FROM CDN**
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL }
+      from "https://www.gstatic.com/firebasejs/11.0.0/firebase-storage.js";
+
+    // YOUR FIREBASE CONFIG
+    const firebaseConfig = {
+      apiKey: "AIzaSyCY2j3NbAclxiu-7Jt71FCA6uphPvJQt0g",
+      authDomain: "petpal-e5d41.firebaseapp.com",
+      projectId: "petpal-e5d41",
+      storageBucket: "petpal-e5d41.firebasestorage.app",
+      messagingSenderId: "601672638286",
+      appId: "1:601672638286:web:de02892ed56c339667c81f",
+      measurementId: "G-VCXEZ3B2VL"
+    };
+
+    // INITIALIZE FIREBASE
+    const app = initializeApp(firebaseConfig);
+    const storage = getStorage(app);
+
+    console.log("Firebase initialized!");
+
+    // UPLOAD BUTTON
+    document.getElementById("uploadBtn").addEventListener("click", async () => {
+      console.log("Upload clicked");
+
+      const file = document.getElementById("fileInput").files[0];
+      if (!file) {
+        alert("Please choose a file");
+        return;
+      }
+
+      try {
+        const path = `pets/${Date.now()}_${file.name}`;
+        const storageRef = ref(storage, path);
+
+        console.log("Uploading to:", path);
+
+        await uploadBytes(storageRef, file);
+
+        const url = await getDownloadURL(storageRef);
+        alert("Upload successful!\n" + url);
+
+      } catch (err) {
+        console.error("UPLOAD ERROR:", err);
+        alert("Upload error: " + err.message);
+      }
+    });
+
+  </script>
+
+</body>
+</html>
