@@ -1,0 +1,45 @@
+// Firestore Rules - Backend Only (Admin SDK)
+
+// Admin SDK bypasses these rules automatically.
+// These rules apply ONLY to clients (Web/Mobile)
+// if they try to read directly from Firestore.
+
+rules_version = '2';
+
+service cloud.firestore {
+    match /databases/{database}/documents {
+
+                                          // ========================
+// PUBLIC PET LISTINGS
+              // ========================
+// Allow everyone to READ pet listings.
+                              // Clients CANNOT modify pets directly.
+                                                            match /pets/{petId} {
+    allow read: if true;
+allow write: if false;
+}
+
+// ========================
+// USERS
+   // ========================
+// Sensitive — block direct client access entirely.
+                                          match /users/{userId} {
+    allow read: if false;
+allow write: if false;
+}
+
+// ========================
+// ADOPTION REQUESTS
+            // ========================
+// Requests contain personal data → block client access.
+                                                 match /adoption_requests/{reqId} {
+    allow read: if false;
+allow write: if false;
+}
+
+// ========================
+// ANY OTHER COLLECTIONS
+             // ========================
+             allow read, write: if false;
+}
+}

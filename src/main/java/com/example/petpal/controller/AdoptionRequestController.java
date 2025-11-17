@@ -17,22 +17,17 @@ public class AdoptionRequestController {
     }
 
     @PostMapping
-    public AdoptionRequest submitRequest(@RequestBody AdoptionRequest request) {
-        return service.submitRequest(request);
+    public AdoptionRequest create(@RequestBody AdoptionRequest request) {
+        return service.createRequest(request);
     }
 
     @GetMapping("/pet/{petId}")
-    public List<AdoptionRequest> getRequestsForPet(@PathVariable Long petId) {
+    public List<AdoptionRequest> getByPet(@PathVariable String petId) {
         return service.getRequestsForPet(petId);
     }
 
-    @PutMapping("/{id}/approve")
-    public AdoptionRequest approve(@PathVariable Long id) {
-        return service.approveRequest(id);
-    }
-
-    @PutMapping("/{id}/reject")
-    public AdoptionRequest reject(@PathVariable Long id) {
-        return service.rejectRequest(id);
+    @PatchMapping("/{id}/status")
+    public void updateStatus(@PathVariable String id, @RequestParam String status) {
+        service.updateStatus(id, status);
     }
 }

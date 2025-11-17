@@ -2,8 +2,6 @@ package com.example.petpal.controller;
 
 import com.example.petpal.entity.User;
 import com.example.petpal.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,45 +10,34 @@ import java.util.List;
 @RequestMapping("/users")
 public class UserController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService service;
 
-
-    // CREATE USER
-    @PostMapping
-    public ResponseEntity<User> create(@RequestBody User user) {
-        return ResponseEntity.ok(userService.createUser(user));
+    public UserController(UserService service) {
+        this.service = service;
     }
 
+    @PostMapping
+    public User createUser(@RequestBody User user) {
+        return service.createUser(user);
+    }
 
-    // GET ALL USERS
+    @GetMapping("/{id}")
+    public User getUser(@PathVariable String id) {
+        return service.getUserById(id);
+    }
+
     @GetMapping
     public List<User> getAllUsers() {
-        return userService.getAllUsers();
+        return service.getAllUsers();
     }
 
-
-    // GET USER BY ID
-    @GetMapping("/{id}")
-    public ResponseEntity<User> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(userService.getUserById(id));
-    }
-
-
-    // UPDATE USER
     @PutMapping("/{id}")
-    public ResponseEntity<User> update(
-            @PathVariable Long id,
-            @RequestBody User updatedUser
-    ) {
-        return ResponseEntity.ok(userService.updateUser(id, updatedUser));
+    public User updateUser(@PathVariable String id, @RequestBody User user) {
+        return service.updateUser(id, user);
     }
 
-
-    // DELETE USER
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@PathVariable Long id) {
-        userService.deleteUser(id);
-        return ResponseEntity.ok("User deleted");
+    public void deleteUser(@PathVariable String id) {
+        service.deleteUser(id);
     }
 }

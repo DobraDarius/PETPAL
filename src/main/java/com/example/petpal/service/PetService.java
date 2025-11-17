@@ -1,25 +1,23 @@
 package com.example.petpal.service;
 
 import com.example.petpal.entity.Pet;
-
 import java.util.List;
 
 public interface PetService {
 
-    // --- PET CRUD ---
+    // CRUD
     Pet addPet(Pet pet);
-    Pet updatePet(Long id, Pet updatedPet);
-    void deletePet(Long id);
-    Pet getPetById(Long id);
+    Pet updatePet(String id, Pet updatedPet);
+    void deletePet(String id);
+    Pet getPetById(String id);
     List<Pet> getAllPets();
 
-    // --- SEARCH ---
+    // Search
     List<Pet> searchPets(String type, String breed, Integer minAge, Integer maxAge, String location);
 
-    // --- IMAGES ---
-    void addImagesToPet(Long petId, List<String> imageUrls);
-    void deleteImage(Long imageId);
+    // Images
+    void addImagesToPet(String petId, List<String> imageUrls);
 
-    // --- OWNER-SPECIFIC ---
-    List<Pet> getPetsByOwner(Long ownerId);
+    // Owner
+    List<Pet> getPetsByOwner(String ownerId);
 }

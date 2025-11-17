@@ -1,0 +1,15 @@
+### Get all pets
+GET http://localhost:9090/pets
+
+### Create pet
+POST http://localhost:9090/pets
+Content-Type: application/json
+
+{
+  "name": "Milo",
+  "type": "Cat",
+  "breed": "Tabby",
+  "age": 2,
+  "description": "Cute cat",
+  "ownerId": "123abc"
+}

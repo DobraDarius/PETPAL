@@ -1,48 +1,53 @@
 package com.example.petpal.service.impl;
 
 import com.example.petpal.entity.AdoptionRequest;
-import com.example.petpal.repository.AdoptionRequestRepository;
 import com.example.petpal.service.AdoptionRequestService;
+import com.google.cloud.firestore.CollectionReference;
+import com.google.cloud.firestore.Firestore;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class AdoptionRequestServiceImpl implements AdoptionRequestService {
 
-    private final AdoptionRequestRepository repository;
+    private final Firestore db;
 
-    public AdoptionRequestServiceImpl(AdoptionRequestRepository repository) {
-        this.repository = repository;
+    public AdoptionRequestServiceImpl(Firestore db) {
+        this.db = db;
+    }
+
+    private CollectionReference requests() {
+        return db.collection("adoption_requests");
     }
 
     @Override
-    public AdoptionRequest submitRequest(AdoptionRequest request) {
-        return repository.save(request);
+    public AdoptionRequest createRequest(AdoptionRequest req) {
+        String id = requests().document().getId();
+        req.setId(id);
+        requests().document(id).set(req);
+        return req;
     }
 
     @Override
-    public List<AdoptionRequest> getRequestsForPet(Long petId) {
-        return repository.findAll().stream()
-                .filter(req -> req.getPet().getId().equals(petId))
-                .toList();
+    public List<AdoptionRequest> getRequestsForPet(String petId) {
+        try {
+            return requests()
+                    .whereEqualTo("petId", petId)
+                    .get().get()
+                    .getDocuments()
+                    .stream()
+                    .map(d -> d.toObject(AdoptionRequest.class))
+                    .collect(Collectors.toList());
+
+        } catch (Exception e) {
+            throw new RuntimeException("Cannot fetch adoption requests", e);
+        }
     }
 
     @Override
-    public AdoptionRequest approveRequest(Long requestId) {
-        AdoptionRequest request = repository.findById(requestId)
-                .orElseThrow(() -> new RuntimeException("Request not found"));
-
-        request.setStatus("APPROVED");
-        return repository.save(request);
-    }
-
-    @Override
-    public AdoptionRequest rejectRequest(Long requestId) {
-        AdoptionRequest request = repository.findById(requestId)
-                .orElseThrow(() -> new RuntimeException("Request not found"));
-
-        request.setStatus("REJECTED");
-        return repository.save(request);
+    public void updateStatus(String reqId, String status) {
+        requests().document(reqId).update("status", status);
     }
 }
