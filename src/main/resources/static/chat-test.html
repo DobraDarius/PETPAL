@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>PetPal Chat Test</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    .box { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
+    #messages { height: 300px; overflow-y: scroll; border: 1px solid #333; padding: 10px; }
+    .msg { padding: 5px; border-bottom: 1px solid #eee; }
+  </style>
+</head>
+<body>
+<h2>PetPal Dev Chat</h2>
+
+<div class="box">
+  <h3>1. Connect</h3>
+  <label>My User ID:</label>
+  <input type="text" id="myId" value="user1" placeholder="e.g. adopter-123">
+  <button onclick="connect()">Connect</button>
+  <span id="status" style="color:red">Disconnected</span>
+</div>
+
+<div class="box">
+  <h3>2. Send Message</h3>
+  <label>To User ID:</label>
+  <input type="text" id="receiverId" value="user2" placeholder="e.g. shelter-456">
+  <br><br>
+  <input type="text" id="messageContent" placeholder="Type a message...">
+  <button onclick="sendMessage()">Send</button>
+</div>
+
+<div class="box">
+  <h3>3. Chat Log</h3>
+  <div id="messages"></div>
+</div>
+
+<script>
+  var stompClient = null;
+  var myId = null;
+
+  function connect() {
+    myId = document.getElementById('myId').value;
+    var socket = new SockJS('/ws'); // Matches your WebSocketConfig
+    stompClient = Stomp.over(socket);
+
+    stompClient.connect({}, function (frame) {
+      document.getElementById('status').innerText = 'Connected as ' + myId;
+      document.getElementById('status').style.color = 'green';
+      console.log('Connected: ' + frame);
+
+      // Subscribe to my own private channel
+      // Matches ChatController: /topic/messages/{receiverId}
+      stompClient.subscribe('/topic/messages/' + myId, function (messageOutput) {
+        showMessage(JSON.parse(messageOutput.body));
+      });
+    });
+  }
+
+  function sendMessage() {
+    var receiverId = document.getElementById('receiverId').value;
+    var content = document.getElementById('messageContent').value;
+
+    if(stompClient && content) {
+      var chatMessage = {
+        senderId: myId,
+        receiverId: receiverId,
+        content: content,
+        timestamp: Date.now()
+      };
+
+      // Send to Backend
+      // Matches ChatController: @MessageMapping("/chat")
+      stompClient.send("/app/chat", {}, JSON.stringify(chatMessage));
+
+      // Show my own message in the log immediately
+      showMessage(chatMessage, true);
+      document.getElementById('messageContent').value = '';
+    }
+  }
+
+  function showMessage(message, isSelf) {
+    var response = document.getElementById('messages');
+    var p = document.createElement('div');
+    p.className = 'msg';
+    var prefix = isSelf ? "<b>(Me): </b>" : "<b>(" + message.senderId + "): </b>";
+    p.innerHTML = prefix + message.content;
+    response.appendChild(p);
+  }
+</script>
+</body>
+</html>

@@ -63,6 +63,12 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- the dependencies for Chat-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
+        </dependency>
+
         <!-- ❌ REMOVE JPA completely -->
         <!-- removed spring-boot-starter-data-jpa -->
     </dependencies>
