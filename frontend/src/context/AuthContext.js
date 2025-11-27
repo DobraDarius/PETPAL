@@ -9,6 +9,15 @@ import {
 // Presupunem că config.js este în folderul 'src/'
 // Dacă ai pus config.js în 'src/firebase/config.js', schimbă la '../firebase/config'
 import { auth, db } from '../config';
+
+const MOCK_USERS = {
+    // Carla este Adopter
+    "carla@example.com": { uid: "mock_carla_uid", role: "adopter" },
+    // Alice este Owner/Shelter (Am mapat "OWNER" la "shelter" conform select-ului tău)
+    "alice@example.com": { uid: "mock_alice_uid", role: "shelter" }
+};
+const MOCK_PASSWORD = "testlogin";
+
 // 1. Crearea Contextului
 const AuthContext = createContext();
 
@@ -19,7 +28,29 @@ export const AuthProvider = ({ children }) => {
 
     // Funcția de login
     const login = (email, password) => {
-        // Returnează un Promise
+
+        // --- 1. LOGICĂ MOCK (Temporar) ---
+        const mockUser = MOCK_USERS[email];
+        if (mockUser && password === MOCK_PASSWORD) {
+            console.warn("MOCK LOGIN: Logat ca utilizator simulat:", email, "Rol:", mockUser.role);
+
+            // Creăm obiectul utilizator simulat
+            const mockAuthUser = {
+                email: email,
+                uid: mockUser.uid,
+                role: mockUser.role
+            };
+
+            // Setăm starea în context direct, ocolind Firebase Auth
+            setUser(mockAuthUser);
+            setLoading(false);
+
+            // Returnăm o promisiune rezolvată pentru a simula succesul Firebase
+            return Promise.resolve({ user: mockAuthUser });
+        }
+        // ------------------------------------
+
+        // --- 2. LOGICĂ REALĂ FIREBASE (Rulată doar dacă nu e user mock) ---
         return signInWithEmailAndPassword(auth, email, password);
     };
 
@@ -31,6 +62,7 @@ export const AuthProvider = ({ children }) => {
 
     // Funcția de logout
     const logout = () => {
+        setUser(null);
         return signOut(auth);
     };
 
