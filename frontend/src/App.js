@@ -1,51 +1,62 @@
 import React from 'react';
+import { Routes, Route } from "react-router-dom";
 import { useAuth } from './context/AuthContext';
-import LoginPage from './pages/LoginPage';
-
-// 1. Importă Dashboard-urile nou create
-import AdopterDashboard from './pages/AdopterDashboard';
-import ShelterDashboard from './pages/ShelterDashboard';
+import AddPetPage from './pages/shelter/AddPetPage';
+// Pagini
+import LoginPage from './pages/auth/LoginPage';
+import AdopterDashboard from './pages/adopter/AdopterDashboard';
+import ShelterDashboard from './pages/shelter/ShelterDashboard';
+import PetDetailsPage from './pages/PetDetailsPage';
 
 const App = () => {
-    // Obține user, loading și logout din context
     const { user, loading, logout } = useAuth();
 
-    // Ecran de încărcare
     if (loading) {
         return <div>Se încarcă aplicația PetPal...</div>;
     }
 
-    // 2. Logica principală de Rutare
     return (
-        <div style={{ padding: '20px' }}>
-            {/* Dacă user-ul este logat */}
-            {user ? (
-                <div>
+        <>
+            {/* Dacă nu ești logat, la orice route, întoarce LoginPage */}
+            {!user ? (
+                <LoginPage />
+            ) : (
+                <>
                     <h1>Bine ai venit, {user.email}!</h1>
 
-                    {/* AICI ESTE LOGICA DE RUTARE PE BAZA ROLULUI */}
-                    {user.role === 'adopter' ? (
-                        <AdopterDashboard />
-                    ) : user.role === 'shelter' ? (
-                        <ShelterDashboard />
-                    ) : (
-                        // Cazul în care rolul nu este setat (deși nu ar trebui să se întâmple cu mock data)
-                        <p>Eroare: Rol utilizator necunoscut.</p>
-                    )}
-
-                    {/* Butonul de deconectare, funcțional în ambele cazuri */}
                     <button
                         onClick={logout}
-                        style={{ marginTop: '20px', padding: '10px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+                        style={{
+                            marginBottom: "15px",
+                            padding: "10px",
+                            backgroundColor: "#dc3545",
+                            color: "white",
+                            border: "none",
+                            borderRadius: "5px",
+                            cursor: "pointer"
+                        }}
                     >
                         Deconectare
                     </button>
-                </div>
-            ) : (
-                // Dacă nu ești logat, arată pagina de login
-                <LoginPage />
+
+                    <Routes>
+                        {user.role === "adopter" && (
+                            <Route path="/" element={<AdopterDashboard />} />
+                        )}
+
+                        {user.role === "shelter" && (
+                            <>
+                                <Route path="/" element={<ShelterDashboard />} />
+                                <Route path="/shelter/add-pet" element={<AddPetPage />} />
+                            </>
+                        )}
+
+                        {/* Pagina detalii pet */}
+                        <Route path="/pet/:id" element={<PetDetailsPage />} />
+                    </Routes>
+                </>
             )}
-        </div>
+        </>
     );
 };
 

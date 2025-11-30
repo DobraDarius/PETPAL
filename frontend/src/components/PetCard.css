@@ -1,0 +1,32 @@
+.pet-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    width: 250px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.pet-card:hover {
+    transform: scale(1.03);
+}
+
+.pet-image {
+    width: 100%;
+    border-radius: 6px;
+}
+
+.pet-info {
+    margin-top: 10px;
+}
+
+.details-btn {
+    margin-top: 8px;
+    padding: 6px 12px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}

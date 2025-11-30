@@ -1,0 +1,196 @@
+/* Background */
+.shelter-container {
+    padding: 40px;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #e0f0d9 0%, #ffffff 100%);
+    animation: fadeIn 0.6s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Header */
+.dashboard-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.title {
+    font-size: 2.6rem;
+    font-weight: 700;
+    color: #1b3a1f;
+}
+
+.subtitle {
+    font-size: 1.1rem;
+    color: #555;
+}
+
+/* Add Button */
+.actions {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+.add-pet-btn {
+    padding: 12px 20px;
+    background: #34a853;
+    border: none;
+    color: white;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.add-pet-btn:hover {
+    background: #2e8a46;
+}
+
+/* Animal Cards */
+.section-title {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+}
+
+.cards-container {
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+    margin-bottom: 50px;
+}
+
+.pet-card {
+    width: 260px;
+    border-radius: 15px;
+    overflow: hidden;
+    background: white;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    transition: 0.3s ease;
+}
+
+.pet-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 6px 30px rgba(0,0,0,0.12);
+}
+
+.pet-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.pet-info {
+    padding: 15px;
+}
+
+.pet-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.edit-btn {
+    padding: 8px 12px;
+    background: #4285f4;
+    border: none;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.edit-btn:hover {
+    background: #3367d6;
+}
+
+.delete-btn {
+    padding: 8px 12px;
+    background: #e53935;
+    border: none;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.delete-btn:hover {
+    background: #c62828;
+}
+
+/* Requests Section */
+.requests-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.request-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 3px 15px rgba(0,0,0,0.06);
+    transition: 0.3s;
+}
+
+.request-card:hover {
+    transform: translateY(-5px);
+}
+
+.request-card span {
+    font-weight: 600;
+}
+
+.request-buttons {
+    display: flex;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.approve-btn {
+    padding: 10px 14px;
+    background: #34a853;
+    border: none;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.reject-btn {
+    padding: 10px 14px;
+    background: #ea4335;
+    border: none;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+}
+.profile-dropdown {
+    position: absolute;
+    top: 48px; /* sub iconiță */
+    right: 0;
+    background: white;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    border-radius: 8px;
+    min-width: 160px;
+    z-index: 10;
+    user-select: none;
+}
+
+.logout-btn {
+    width: 100%;
+    padding: 10px 12px;
+    border: none;
+    background-color: #dc3545;
+    color: white;
+    font-weight: 600;
+    border-radius: 0 0 8px 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.logout-btn:hover {
+    background-color: #b02a37;
+}

@@ -8,7 +8,7 @@ import {
 
 // Presupunem că config.js este în folderul 'src/'
 // Dacă ai pus config.js în 'src/firebase/config.js', schimbă la '../firebase/config'
-import { auth, db } from '../config';
+import { auth, db } from '../firebase/config';
 
 const MOCK_USERS = {
     // Carla este Adopter
