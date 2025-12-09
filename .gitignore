@@ -31,7 +31,7 @@ build/
 
 # Firebase private key
 src/main/resources/Firebase/petpal-e5d41-firebase-adminsdk-fbsvc-af5380a9a5.json
-
+src/main/resources/serviceAccountKey.json
 
 ### VS Code ###
 .vscode/

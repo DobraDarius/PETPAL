@@ -5,26 +5,31 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.cloud.firestore.Firestore;
 import com.google.firebase.cloud.FirestoreClient;
-import org.springframework.beans.factory.annotation.Value;
+// Import ClassPathResource
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-import java.io.FileInputStream;
+import java.io.InputStream;
 
 @Configuration
-@Profile("!test")   // Firebase disabled in test profile
+@Profile("!test")
 public class FirestoreConfig {
 
-    @Value("${firebase.config.path}")
-    private String firebaseConfigPath;
+    // We don't strictly need the @Value path anymore if we standardise the filename
+    // But we can keep the structure if you prefer.
 
     @Bean
     public Firestore firestore() throws Exception {
 
-        // Prevent "FirebaseApp name DEFAULT already exists"
         if (FirebaseApp.getApps().isEmpty()) {
-            FileInputStream serviceAccount = new FileInputStream(firebaseConfigPath);
+            // UPDATED LOGIC HERE:
+            // This looks for "serviceAccountKey.json" directly inside src/main/resources
+            ClassPathResource serviceAccountResource = new ClassPathResource("ServiceAccountKey.json");
+
+            // Open the stream
+            InputStream serviceAccount = serviceAccountResource.getInputStream();
 
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
