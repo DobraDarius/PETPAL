@@ -10,9 +10,9 @@ import PetDetailsPage from './pages/PetDetailsPage';
 
 const App = () => {
     const { user, loading, logout } = useAuth();
-
+    console.log("User curent:", user);
     if (loading) {
-        return <div>Se încarcă aplicația PetPal...</div>;
+        return <div>PetPal is loading...</div>;
     }
 
     return (
@@ -22,7 +22,7 @@ const App = () => {
                 <LoginPage />
             ) : (
                 <>
-                    <h1>Bine ai venit, {user.email}!</h1>
+                    <h1>Welcome, {user.email}!</h1>
 
                     <button
                         onClick={logout}
@@ -36,7 +36,7 @@ const App = () => {
                             cursor: "pointer"
                         }}
                     >
-                        Deconectare
+                        Deconnect
                     </button>
 
                     <Routes>
