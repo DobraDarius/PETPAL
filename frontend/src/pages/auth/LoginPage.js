@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import RegistrationPage from './RegistrationPage';
+import { FaEye, FaEyeSlash } from 'react-icons/fa'; // <--- IMPORT NOU
 
 const LoginPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [isRegistering, setIsRegistering] = useState(false);
+
+    // State pentru vizibilitatea parolei
+    const [showPassword, setShowPassword] = useState(false);
 
     const { login } = useAuth();
 
@@ -22,7 +26,7 @@ const LoginPage = () => {
             await login(email, password);
         } catch (err) {
             console.error("Login failed:", err);
-            setError('Autentificare eșuată. Verificați emailul și parola.');
+            setError('Login failed. Please check your email and password.');
         }
     };
 
@@ -44,7 +48,9 @@ const LoginPage = () => {
                 textAlign: 'center',
                 animation: 'fadeIn 1s ease-in-out'
             }}>
-                <h2 style={{ marginBottom: '30px', color: '#333', fontWeight: '700', letterSpacing: '1px' }}>🐾 PetPal Login</h2>
+                <h2 style={{ marginBottom: '30px', color: '#333', fontWeight: '700', letterSpacing: '1px' }}>
+                    🐾 PetPal Login
+                </h2>
 
                 <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                     <input
@@ -60,28 +66,51 @@ const LoginPage = () => {
                             outline: 'none',
                             fontSize: '16px',
                             transition: '0.3s',
+                            width: '100%',
+                            boxSizing: 'border-box' // Important ca să nu iasă din chenar
                         }}
                         onFocus={(e) => e.target.style.borderColor = '#764ba2'}
                         onBlur={(e) => e.target.style.borderColor = '#ccc'}
                     />
 
-                    <input
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="Parola"
-                        required
-                        style={{
-                            padding: '12px 15px',
-                            borderRadius: '10px',
-                            border: '1px solid #ccc',
-                            outline: 'none',
-                            fontSize: '16px',
-                            transition: '0.3s',
-                        }}
-                        onFocus={(e) => e.target.style.borderColor = '#764ba2'}
-                        onBlur={(e) => e.target.style.borderColor = '#ccc'}
-                    />
+                    {/* WRAPPER PENTRU PAROLĂ CA SĂ PUNEM ICONIȚA */}
+                    <div style={{ position: 'relative', width: '100%' }}>
+                        <input
+                            type={showPassword ? "text" : "password"} // AICI E MAGIA (TEXT vs PASSWORD)
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            placeholder="Password"
+                            required
+                            style={{
+                                padding: '12px 45px 12px 15px', // Padding dreapta mai mare ca să nu scriem peste ochi
+                                borderRadius: '10px',
+                                border: '1px solid #ccc',
+                                outline: 'none',
+                                fontSize: '16px',
+                                transition: '0.3s',
+                                width: '100%',
+                                boxSizing: 'border-box'
+                            }}
+                            onFocus={(e) => e.target.style.borderColor = '#764ba2'}
+                            onBlur={(e) => e.target.style.borderColor = '#ccc'}
+                        />
+
+                        {/* ICONIȚA OCHI */}
+                        <span
+                            onClick={() => setShowPassword(!showPassword)}
+                            style={{
+                                position: 'absolute',
+                                right: '15px',
+                                top: '50%',
+                                transform: 'translateY(-50%)',
+                                cursor: 'pointer',
+                                color: '#764ba2',
+                                fontSize: '1.2rem'
+                            }}
+                        >
+                            {showPassword ? <FaEyeSlash /> : <FaEye />}
+                        </span>
+                    </div>
 
                     <button
                         type="submit"
@@ -100,14 +129,14 @@ const LoginPage = () => {
                         onMouseEnter={(e) => e.target.style.transform = 'scale(1.05)'}
                         onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
                     >
-                        Loghează-te
+                        Log In
                     </button>
                 </form>
 
                 {error && <p style={{ color: 'red', marginTop: '15px' }}>{error}</p>}
 
                 <p style={{ marginTop: '25px', fontSize: '14px', color: '#555' }}>
-                    Nu ai cont?
+                    Don’t have an account?
                     <button
                         type="button"
                         onClick={() => setIsRegistering(true)}
@@ -120,7 +149,7 @@ const LoginPage = () => {
                             marginLeft: '5px'
                         }}
                     >
-                        Înregistrează-te
+                        Sign up
                     </button>
                 </p>
             </div>

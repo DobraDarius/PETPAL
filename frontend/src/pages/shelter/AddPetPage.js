@@ -1,24 +1,27 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore"; // Importuri Firestore
-import { db } from "../../firebase"; // ⚠️ Verifică calea către fișierul tău firebase.js
-import { useAuth } from "../../context/AuthContext"; // Importăm contextul pentru a ști CINE adaugă animalul
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { db } from "../../firebase/config";
+import { useAuth } from "../../context/AuthContext";
 import "./AddPetPage.css";
 
 const AddPetPage = () => {
     const navigate = useNavigate();
-    const { user } = useAuth(); // Luăm userul curent ca să îi salvăm ID-ul ca proprietar
+    const { user } = useAuth();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
     const [pet, setPet] = useState({
         name: "",
-        type: "",
+        type: "Dog", // Default selected option
         breed: "",
         age: "",
         description: "",
         image: ""
     });
+
+    // Options for the dropdown
+    const petTypes = ["Dog", "Cat", "Hamster", "Rabbit", "Parrot", "Other"];
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -31,20 +34,28 @@ const AddPetPage = () => {
         setError("");
 
         try {
-            // Aici salvăm datele în colecția "pets" din Firestore
+            // SMART LOGIC: If no image is provided, use a default one
+            let finalImage = pet.image;
+            if (!finalImage) {
+                if (pet.type === "Dog") finalImage = "https://place.dog/300/300";
+                else if (pet.type === "Cat") finalImage = "https://placekitten.com/300/300";
+                else finalImage = "https://via.placeholder.com/300?text=No+Image";
+            }
+
             await addDoc(collection(db, "pets"), {
                 ...pet,
-                ownerId: user.uid, // Foarte important: Legăm animalul de shelter-ul care l-a postat
-                shelterEmail: user.email, // Opțional: salvăm și emailul pentru contact ușor
-                adopted: false, // Implicit, animalul nu e adoptat încă
-                createdAt: serverTimestamp() // Salvăm data și ora creării
+                image: finalImage,
+                ownerId: user.uid,
+                shelterEmail: user.email,
+                adopted: false,
+                createdAt: serverTimestamp()
             });
 
             console.log("Pet added successfully!");
-            navigate("/"); // Ne întoarcem la Dashboard
+            navigate("/");
         } catch (err) {
             console.error("Error adding pet:", err);
-            setError("A apărut o eroare la salvarea datelor. Încearcă din nou.");
+            setError("There was an error. Please try again...");
         } finally {
             setLoading(false);
         }
@@ -53,9 +64,9 @@ const AddPetPage = () => {
     return (
         <div className="addpet-container">
             <div className="addpet-card">
-                <h1 className="addpet-title">🐾 Add a New Pet for Adoption</h1>
+                <h1 className="addpet-title">🐾 Add a New Pet</h1>
                 <p className="addpet-subtitle">
-                    Complete all fields below to list your pet for adoption.
+                    Fill in the details to list the pet for adoption.
                 </p>
 
                 {error && <p style={{ color: "red", marginBottom: "15px" }}>{error}</p>}
@@ -64,19 +75,29 @@ const AddPetPage = () => {
                     <input
                         type="text"
                         name="name"
-                        placeholder="Pet's Name"
+                        placeholder="Pet Name"
                         value={pet.name}
                         onChange={handleChange}
                         required
                     />
-                    <input
-                        type="text"
-                        name="type"
-                        placeholder="Type (Dog, Cat, Other)"
-                        value={pet.type}
-                        onChange={handleChange}
-                        required
-                    />
+
+                    {/* --- COMBOBOX (DROPDOWN) --- */}
+                    <div className="select-container">
+                        <label className="input-label">Pet Type:</label>
+                        <select
+                            name="type"
+                            value={pet.type}
+                            onChange={handleChange}
+                            required
+                        >
+                            {petTypes.map((type) => (
+                                <option key={type} value={type}>
+                                    {type}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
                     <input
                         type="text"
                         name="breed"
@@ -85,36 +106,39 @@ const AddPetPage = () => {
                         onChange={handleChange}
                         required
                     />
+
                     <input
                         type="text"
                         name="age"
-                        placeholder="Age (e.g., 2 years)"
+                        placeholder="Age (e.g. 2 years)"
                         value={pet.age}
                         onChange={handleChange}
                         required
                     />
+
                     <textarea
                         name="description"
-                        placeholder="Describe your pet..."
+                        placeholder="Description (personality, story...)"
                         value={pet.description}
                         onChange={handleChange}
                         required
                     />
+
+                    {/* IMAGE IS NOW OPTIONAL */}
                     <input
                         type="text"
                         name="image"
-                        placeholder="Image URL (ex: https://...)"
+                        placeholder="Image URL (Optional - leave empty for default)"
                         value={pet.image}
                         onChange={handleChange}
-                        required
                     />
 
                     <button type="submit" className="submit-btn" disabled={loading}>
-                        {loading ? "Saving..." : "Add Pet"}
+                        {loading ? "Saving..." : "Publish Listing"}
                     </button>
                 </form>
 
-                <button className="back-btn" onClick={() => navigate(-1)}>
+                <button className="back-btn" type="button" onClick={() => navigate(-1)}>
                     ← Back to Dashboard
                 </button>
             </div>

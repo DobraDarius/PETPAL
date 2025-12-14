@@ -1,100 +1,150 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaUserCircle } from "react-icons/fa";
-import { useAuth } from "../../context/AuthContext";  // presupun că aici ai logout
+import { FaUserCircle, FaPlus, FaTrash, FaPen } from "react-icons/fa";
+import { useAuth } from "../../context/AuthContext";
+import { collection, query, where, onSnapshot, deleteDoc, doc } from "firebase/firestore";
+import { db } from "../../firebase/config";
 import "./ShelterDashboard.css";
 
 const ShelterDashboard = () => {
     const navigate = useNavigate();
     const { user, logout } = useAuth();
     const [showMenu, setShowMenu] = useState(false);
+    const [pets, setPets] = useState([]);
+    const [loading, setLoading] = useState(true);
 
+    // 1. CITIREA DATELOR DIN FIREBASE (REAL-TIME)
+    useEffect(() => {
+        if (!user) return;
+
+        const q = query(collection(db, "pets"), where("ownerId", "==", user.uid));
+
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const petsData = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+            setPets(petsData);
+            setLoading(false);
+        });
+
+        return () => unsubscribe();
+    }, [user]);
+
+    // 2. LOGOUT
     const handleLogout = async () => {
         try {
             await logout();
-            navigate("/login");  // redirect la login după logout
+            navigate("/");
         } catch (error) {
             console.error("Logout failed:", error);
         }
     };
 
+    // 3. DELETE PET
+    const handleDelete = async (petId) => {
+        if (window.confirm("Are you sure you want to delete this pet? This action cannot be undone.")) {
+            try {
+                await deleteDoc(doc(db, "pets", petId));
+            } catch (err) {
+                console.error("Error deleting pet:", err);
+            }
+        }
+    };
+
     return (
         <div className="shelter-container">
-            {/* HEADER */}
-            <header className="dashboard-header" style={{ position: "relative" }}>
-                <h1 className="title">🏠 Shelter Dashboard</h1>
+            {/* HEADER MODERN */}
+            <header className="dashboard-header">
+                <div className="header-content">
+                    <h1 className="title">🏠 Shelter Dashboard</h1>
+                    <p className="subtitle">Manage your listed pets and adoption requests</p>
+                </div>
 
-                {/* Profile Icon + dropdown */}
-                <div
-                    className="profile-icon-container"
-                    style={{ position: "absolute", top: 20, right: 20, cursor: "pointer" }}
-                >
-                    <FaUserCircle
-                        size={36}
+                {/* Buton Profil & Logout */}
+                <div className="profile-section">
+                    <div
+                        className="profile-trigger"
                         onClick={() => setShowMenu(!showMenu)}
-                        title={user?.email || "Profile"}
-                    />
+                        title="Click to see profile"
+                    >
+                        {/* AM SCOS EMAILUL DE AICI, A RĂMAS DOAR ICONIȚA */}
+                        <FaUserCircle size={40} color="#4a5568" />
+                    </div>
+
                     {showMenu && (
                         <div className="profile-dropdown">
-                            <p style={{ margin: "8px 12px", fontWeight: "bold" }}>
+                            {/* AM MUTAT EMAILUL AICI, ÎN INTERIORUL MENIULUI */}
+                            <div style={{
+                                padding: '15px',
+                                borderBottom: '1px solid #eee',
+                                color: '#555',
+                                fontSize: '0.9rem',
+                                fontWeight: '600',
+                                textAlign: 'center'
+                            }}>
                                 {user?.email}
-                            </p>
+                            </div>
+
                             <button className="logout-btn" onClick={handleLogout}>
-                                Deconectare
+                                Log Out
                             </button>
                         </div>
                     )}
                 </div>
             </header>
 
-            {/* ACTION BUTTON */}
-            <div className="actions">
-                <button
-                    className="add-pet-btn"
-                    onClick={() => navigate("/shelter/add-pet")}
-                >
-                    + Add New Pet
+            {/* ACTION BAR */}
+            <div className="actions-bar">
+                <button className="add-pet-btn" onClick={() => navigate("/shelter/add-pet")}>
+                    <FaPlus style={{ marginRight: "8px" }} /> Add a New Animal
                 </button>
             </div>
 
-            {/* LISTA DE ANIMALE */}
-            <h2 className="section-title">Your Listed Animals</h2>
+            {/* LISTA ANIMALE */}
+            <h2 className="section-title">Your Listed Animals ({pets.length})</h2>
 
-            <div className="cards-container">
-                {/* Card exemplu */}
-                <div className="pet-card">
-                    <img
-                        src="https://place-puppy.com/400x400"
-                        className="pet-image"
-                        alt="pet"
-                    />
-                    <div className="pet-info">
-                        <h3>Bella</h3>
-                        <p>Golden Retriever • 3 years</p>
-                        <div className="pet-buttons">
-                            <button className="edit-btn">Edit</button>
-                            <button className="delete-btn">Delete</button>
+            {loading ? (
+                <p>Loading your list...</p>
+            ) : pets.length === 0 ? (
+                <div className="empty-state">
+                    <p>You haven't added an animal yet.</p>
+                </div>
+            ) : (
+                <div className="cards-container">
+                    {pets.map((pet) => (
+                        <div key={pet.id} className="pet-card">
+                            <img
+                                src={pet.image}
+                                alt={pet.name}
+                                className="pet-image"
+                                onError={(e) => {e.target.src = 'https://via.placeholder.com/300?text=No+Image'}}
+                            />
+                            <div className="pet-info">
+                                <h3>{pet.name}</h3>
+                                <p className="pet-details">
+                                    {pet.type} • {pet.breed} • {pet.age}
+                                </p>
+                                <div className="pet-buttons">
+                                    <button className="icon-btn edit"
+                                            title="Edit"
+                                            onClick={() => navigate(`/shelter/edit-pet/${pet.id}`)}
+                                    >
+                                        <FaPen />
+                                    </button>
+                                    <button
+                                        className="icon-btn delete"
+                                        onClick={() => handleDelete(pet.id)}
+                                        title="Delete"
+                                    >
+                                        <FaTrash />
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                    ))}
                 </div>
-            </div>
-
-            {/* REQUESTS SECTION */}
-            <h2 className="section-title">Adoption Requests</h2>
-            <div className="requests-container">
-                <div className="request-card">
-                    <h3>
-                        Request from: <span>John Doe</span>
-                    </h3>
-                    <p>
-                        Interested in adopting: <strong> Bella</strong>
-                    </p>
-                    <div className="request-buttons">
-                        <button className="approve-btn">Approve</button>
-                        <button className="reject-btn">Reject</button>
-                    </div>
-                </div>
-            </div>
+            )}
         </div>
     );
 };
