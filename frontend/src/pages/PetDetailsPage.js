@@ -1,19 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { doc, getDoc } from "firebase/firestore";
-import { db } from "../firebase/config"; // Make sure the path is correct
+import { db } from "../firebase/config";
+import { useAuth } from "../context/AuthContext";
+import { FaArrowLeft, FaEnvelope, FaComments, FaMars, FaVenus, Fapaw } from "react-icons/fa";
 import "./PetDetailsPage.css";
 
 const PetDetailsPage = () => {
-    const { id } = useParams(); // Get the ID from the URL
+    const { id } = useParams();
     const navigate = useNavigate();
+    const { user } = useAuth();
     const [pet, setPet] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchPet = async () => {
             try {
-                // Request the specific document from the "pets" collection by ID
                 const docRef = doc(db, "pets", id);
                 const docSnap = await getDoc(docRef);
 
@@ -32,65 +34,83 @@ const PetDetailsPage = () => {
         fetchPet();
     }, [id]);
 
-    if (loading)
-        return (
-            <div className="details-container">
-                <h2>Loading details...</h2>
-            </div>
-        );
+    const handleChat = () => {
+        // We will implement the real chat logic in the next step!
+        alert("Chat feature coming soon!");
+    };
 
-    if (!pet)
-        return (
-            <div className="details-container">
-                <h2>Pet not found :(</h2>
-            </div>
-        );
+    if (loading) return <div className="details-loading">Loading details...</div>;
+    if (!pet) return <div className="details-loading">Pet not found 😕</div>;
+
+    // Helper to format age
+    const formatAge = (age) => {
+        const num = parseInt(age);
+        if (isNaN(num)) return age; // Fallback if it's text
+        return num === 1 ? "1 year" : `${num} years`;
+    };
 
     return (
         <div className="details-container">
-            <button className="back-btn" onClick={() => navigate(-1)}>
-                ← Back
+            <button className="back-btn-modern" onClick={() => navigate(-1)}>
+                <FaArrowLeft /> Back
             </button>
 
             <div className="details-card">
-                <img
-                    src={pet.image}
-                    className="details-image"
-                    alt={pet.name}
-                    onError={(e) => {
-                        e.target.src =
-                            "https://via.placeholder.com/350?text=No+Image";
-                    }}
-                />
+                {/* LEFT: Image */}
+                <div className="image-section">
+                    <img
+                        src={pet.image}
+                        className="details-image"
+                        alt={pet.name}
+                        onError={(e) => { e.target.src = "https://via.placeholder.com/400?text=No+Image"; }}
+                    />
+                </div>
 
-                <div className="details-info">
-                    <h1>{pet.name}</h1>
+                {/* RIGHT: Info */}
+                <div className="info-section">
+                    <div className="header-info">
+                        <h1 className="pet-name">{pet.name}</h1>
+                        <span className="pet-breed-badge">{pet.breed}</span>
+                    </div>
 
-                    <p className="details-breed">
-                        <strong>Type:</strong> {pet.type}  {"  "}
-                        <strong>Age:</strong> {pet.age}
-                    </p>
+                    <div className="tags-row">
+                        <div className="info-tag">
+                            <span className="label">Type</span>
+                            <span className="value">{pet.type}</span>
+                        </div>
+                        <div className="info-tag">
+                            <span className="label">Age</span>
+                            <span className="value">{formatAge(pet.age)}</span>
+                        </div>
+                        <div className="info-tag">
+                            <span className="label">Gender</span>
+                            <span className="value">
+                                {pet.gender === "Male" ? <FaMars color="#3b82f6"/> : <FaVenus color="#ec4899"/>}
+                                {" "}{pet.gender}
+                            </span>
+                        </div>
+                        <div className="info-tag">
+                            <span className="label">Color</span>
+                            <span className="value">{pet.color}</span>
+                        </div>
+                    </div>
 
-                    <p className="details-type">
-                        <strong>Breed:</strong> {pet.breed}
-                    </p>
+                    <div className="story-section">
+                        <h3>My Story</h3>
+                        <p>{pet.description}</p>
+                    </div>
 
-                    <h3>My Story:</h3>
-                    <p className="details-description">{pet.description}</p>
-
-                    <div className="contact-section">
-                        <p>
-                            <strong>Shelter Contact:</strong>{" "}
-                            {pet.shelterEmail}
-                        </p>
-                        <button
-                            className="contact-btn"
-                            onClick={() =>
-                                (window.location.href = `mailto:${pet.shelterEmail}`)
-                            }
-                        >
-                            Send Email
+                    <div className="action-buttons-row">
+                        <button className="action-btn chat-btn" onClick={handleChat}>
+                            <FaComments /> Chat with Owner
                         </button>
+
+                        <a
+                            href={`mailto:${pet.shelterEmail}?subject=Adoption Inquiry: ${pet.name}`}
+                            className="action-btn email-btn"
+                        >
+                            <FaEnvelope /> Send Email
+                        </a>
                     </div>
                 </div>
             </div>

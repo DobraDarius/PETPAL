@@ -13,15 +13,17 @@ const AddPetPage = () => {
 
     const [pet, setPet] = useState({
         name: "",
-        type: "Dog", // Default selected option
+        type: "Dog",
         breed: "",
-        age: "",
+        gender: "Male",
+        age: "",   // Now this will be a number string like "2"
+        color: "",
         description: "",
         image: ""
     });
 
-    // Options for the dropdown
-    const petTypes = ["Dog", "Cat", "Hamster", "Rabbit", "Parrot", "Other"];
+    const petTypes = ["Dog", "Cat", "Rabbit", "Hamster", "Bird", "Other"];
+    const genders = ["Male", "Female"];
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -34,7 +36,7 @@ const AddPetPage = () => {
         setError("");
 
         try {
-            // SMART LOGIC: If no image is provided, use a default one
+            // Default image logic
             let finalImage = pet.image;
             if (!finalImage) {
                 if (pet.type === "Dog") finalImage = "https://place.dog/300/300";
@@ -51,11 +53,10 @@ const AddPetPage = () => {
                 createdAt: serverTimestamp()
             });
 
-            console.log("Pet added successfully!");
             navigate("/");
         } catch (err) {
             console.error("Error adding pet:", err);
-            setError("There was an error. Please try again...");
+            setError("Error saving pet. Please try again.");
         } finally {
             setLoading(false);
         }
@@ -64,10 +65,8 @@ const AddPetPage = () => {
     return (
         <div className="addpet-container">
             <div className="addpet-card">
-                <h1 className="addpet-title">🐾 Add a New Pet</h1>
-                <p className="addpet-subtitle">
-                    Fill in the details to list the pet for adoption.
-                </p>
+                <h1 className="addpet-title">🐾 List a New Pet</h1>
+                <p className="addpet-subtitle">Help them find a loving home.</p>
 
                 {error && <p style={{ color: "red", marginBottom: "15px" }}>{error}</p>}
 
@@ -81,37 +80,47 @@ const AddPetPage = () => {
                         required
                     />
 
-                    {/* --- COMBOBOX (DROPDOWN) --- */}
-                    <div className="select-container">
-                        <label className="input-label">Pet Type:</label>
-                        <select
-                            name="type"
-                            value={pet.type}
+                    {/* ROW 1: Type & Breed */}
+                    <div style={{ display: 'flex', gap: '15px' }}>
+                        <select name="type" value={pet.type} onChange={handleChange} required>
+                            {petTypes.map(t => <option key={t} value={t}>{t}</option>)}
+                        </select>
+                        <input
+                            type="text"
+                            name="breed"
+                            placeholder="Breed"
+                            value={pet.breed}
                             onChange={handleChange}
                             required
-                        >
-                            {petTypes.map((type) => (
-                                <option key={type} value={type}>
-                                    {type}
-                                </option>
-                            ))}
+                        />
+                    </div>
+
+                    {/* ROW 2: Age & Gender */}
+                    <div style={{ display: 'flex', gap: '15px' }}>
+
+                        {/* CHANGED: Number Input for Age */}
+                        <input
+                            type="number"
+                            name="age"
+                            placeholder="Age (years)"
+                            min="0"
+                            max="30"
+                            value={pet.age}
+                            onChange={handleChange}
+                            required
+                            style={{ flex: 1 }} // Ensures it takes equal width in flex row
+                        />
+
+                        <select name="gender" value={pet.gender} onChange={handleChange} required style={{ flex: 1 }}>
+                            {genders.map(g => <option key={g} value={g}>{g}</option>)}
                         </select>
                     </div>
 
                     <input
                         type="text"
-                        name="breed"
-                        placeholder="Breed"
-                        value={pet.breed}
-                        onChange={handleChange}
-                        required
-                    />
-
-                    <input
-                        type="text"
-                        name="age"
-                        placeholder="Age (e.g. 2 years)"
-                        value={pet.age}
+                        name="color"
+                        placeholder="Color (e.g. Black, Golden)"
+                        value={pet.color}
                         onChange={handleChange}
                         required
                     />
@@ -124,22 +133,21 @@ const AddPetPage = () => {
                         required
                     />
 
-                    {/* IMAGE IS NOW OPTIONAL */}
                     <input
                         type="text"
                         name="image"
-                        placeholder="Image URL (Optional - leave empty for default)"
+                        placeholder="Image URL (Optional)"
                         value={pet.image}
                         onChange={handleChange}
                     />
 
                     <button type="submit" className="submit-btn" disabled={loading}>
-                        {loading ? "Saving..." : "Publish Listing"}
+                        {loading ? "Publishing..." : "Publish Listing"}
                     </button>
                 </form>
 
                 <button className="back-btn" type="button" onClick={() => navigate(-1)}>
-                    ← Back to Dashboard
+                    Cancel
                 </button>
             </div>
         </div>

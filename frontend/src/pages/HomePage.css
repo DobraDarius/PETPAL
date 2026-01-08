@@ -1,0 +1,390 @@
+/* src/pages/HomePage.css */
+
+/* --- 0. GLOBAL RESET & BASE --- */
+/* This ensures padding doesn't make elements wider than 100%, causing overlaps */
+* {
+    box-sizing: border-box;
+}
+
+.adopter-container {
+    padding: 30px 5%;
+    min-height: 100vh;
+    background: #f8fafc;
+    font-family: 'Poppins', sans-serif;
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- 1. HEADER --- */
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+    flex-wrap: wrap; /* Safety wrap for very small screens */
+    gap: 20px;
+}
+
+.title {
+    font-size: 2rem;
+    color: #1e293b;
+    font-weight: 800;
+    margin: 0;
+}
+
+.subtitle {
+    color: #64748b;
+    font-size: 1rem;
+    margin-top: 5px;
+}
+
+.header-left {
+    min-width: 200px;
+}
+
+/* Add Pet Button */
+.add-pet-btn-modern {
+    padding: 12px 24px;
+    border-radius: 50px;
+    border: none;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    transition: transform 0.2s, box-shadow 0.2s;
+    white-space: nowrap; /* Prevents text from squishing */
+}
+
+.add-pet-btn-modern:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+
+/* Profile Dropdown */
+.profile-icon {
+    font-size: 2.5rem;
+    color: #3b82f6;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+.profile-icon:hover { color: #2563eb; }
+
+.profile-dropdown {
+    position: absolute;
+    right: 0;
+    top: 50px;
+    background: white;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    border-radius: 15px;
+    width: 180px;
+    padding: 15px;
+    z-index: 100;
+    border: 1px solid #f1f5f9;
+}
+.profile-dropdown button {
+    width: 100%;
+    padding: 8px;
+    background: #fee2e2;
+    color: #ef4444;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    margin-top: 5px;
+}
+.profile-dropdown button:hover { background: #fecaca; }
+
+
+/* --- 2. SEARCH & FILTER CONTROLS (Fixed Overlap) --- */
+.controls-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 50px;
+    width: 100%;
+}
+
+.search-header-row {
+    display: flex;
+    flex-wrap: wrap; /* CRITICAL FIX: Allows items to wrap if space is tight */
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+    max-width: 800px;
+}
+
+.search-box {
+    position: relative;
+    flex: 1 1 300px; /* Grow: 1, Shrink: 1, Basis: 300px. Wraps if <300px space */
+    min-width: 250px; /* Ensures input never gets too small */
+}
+
+.search-icon {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    pointer-events: none;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 16px 20px 16px 50px;
+    font-size: 1.1rem;
+    border: 2px solid transparent;
+    border-radius: 50px;
+    background: white;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.search-box input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 4px 25px rgba(59, 130, 246, 0.15);
+}
+
+/* The Filter Toggle Button */
+.filter-toggle-btn {
+    flex: 0 0 auto; /* Don't grow, don't shrink */
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 24px;
+    border-radius: 50px;
+    border: none;
+    background: white;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+    transition: all 0.3s ease;
+    white-space: nowrap; /* Prevents text breaking */
+}
+
+.filter-toggle-btn:hover {
+    background: #f8fafc;
+    box-shadow: 0 6px 25px rgba(0,0,0,0.08);
+    transform: translateY(-1px);
+    color: #3b82f6;
+}
+
+.filter-toggle-btn.active {
+    background: #eff6ff;
+    color: #3b82f6;
+    border: 1px solid #dbeafe;
+}
+
+.filter-badge {
+    background: #ef4444;
+    color: white;
+    font-size: 0.75rem;
+    padding: 2px 6px;
+    border-radius: 10px;
+    margin-left: 4px;
+}
+
+/* The Hidden Panel */
+.filters-panel {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    max-width: 800px;
+    background: white;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+    animation: slideDown 0.3s ease-out forwards;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Select Dropdowns */
+.modern-select {
+    padding: 12px 20px;
+    border-radius: 30px;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    font-size: 0.95rem;
+    color: #475569;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 140px;
+    outline: none;
+    appearance: none;
+
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007CB2%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px top 50%;
+    background-size: 10px auto;
+    padding-right: 35px;
+}
+
+.modern-select:hover, .modern-select:focus {
+    background: white;
+    border-color: #3b82f6;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.1);
+}
+
+.clear-filters-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: #fee2e2;
+    color: #ef4444;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: 0.2s;
+}
+
+.clear-filters-btn:hover {
+    background: #fecaca;
+    transform: rotate(90deg);
+}
+
+/* --- 3. CARDS GRID --- */
+.cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 30px;
+}
+
+.pet-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    border: 1px solid #f1f5f9;
+}
+
+.pet-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+}
+
+.owner-badge {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 30px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    backdrop-filter: blur(4px);
+    z-index: 2;
+}
+
+.image-wrapper {
+    height: 220px;
+    width: 100%;
+    overflow: hidden;
+}
+
+.pet-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.pet-card:hover img {
+    transform: scale(1.05);
+}
+
+.pet-info {
+    padding: 20px;
+}
+
+.pet-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.pet-header h3 {
+    margin: 0;
+    color: #1e293b;
+    font-size: 1.25rem;
+}
+
+.pet-breed-pill {
+    background: #eff6ff;
+    color: #3b82f6;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.pet-subtext {
+    color: #64748b;
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+}
+
+.details-btn {
+    width: 100%;
+    padding: 12px;
+    background: #f1f5f9;
+    color: #334155;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: 0.2s;
+    cursor: pointer;
+}
+
+.details-btn:hover {
+    background: #3b82f6;
+    color: white;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.edit-btn, .delete-btn {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: 0.2s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.edit-btn { background: #eff6ff; color: #3b82f6; }
+.edit-btn:hover { background: #dbeafe; }
+
+.delete-btn { background: #fef2f2; color: #ef4444; }
+.delete-btn:hover { background: #fee2e2; }
