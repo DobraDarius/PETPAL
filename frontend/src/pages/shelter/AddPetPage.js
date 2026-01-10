@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { db } from "../../firebase/config";
+import { db } from "../../firebase/firebase";
 import { useAuth } from "../../context/AuthContext";
 import "./AddPetPage.css";
 

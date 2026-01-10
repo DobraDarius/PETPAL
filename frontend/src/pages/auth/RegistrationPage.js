@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { doc, setDoc } from 'firebase/firestore';
-import { db } from '../../firebase/config';
+import { db } from '../../firebase/firebase';
 import './RegistrationPage.css';
 
 const RegistrationPage = ({ onBackToLogin }) => {

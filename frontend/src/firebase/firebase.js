@@ -1,8 +1,8 @@
-// Importa Firebase
+// src/firebase/firebase.js
 import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
-import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
     apiKey: "AIzaSyCY2j3NbAclxiu-7Jt71FCA6uphPvJQt0g",
@@ -14,9 +14,13 @@ const firebaseConfig = {
     measurementId: "G-VCXEZ3B2VL"
 };
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
+
+// Initialize Services
+const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
-const auth = getAuth(app);
 
-export { db, storage, auth };
+// Export them for use in other components
+export { auth, db, storage };

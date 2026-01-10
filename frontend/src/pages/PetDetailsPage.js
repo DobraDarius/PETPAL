@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { doc, getDoc } from "firebase/firestore";
-import { db } from "../firebase/config";
+import { db } from "../firebase/firebase"; // Fixed import
 import { useAuth } from "../context/AuthContext";
-import { FaArrowLeft, FaEnvelope, FaComments, FaMars, FaVenus, Fapaw } from "react-icons/fa";
+import { FaArrowLeft, FaEnvelope, FaComments, FaMars, FaVenus, FaTimes } from "react-icons/fa";
+import ChatComponent from "../components/ChatComponent"; // <--- IMPORT CHAT
 import "./PetDetailsPage.css";
 
 const PetDetailsPage = () => {
@@ -12,6 +13,7 @@ const PetDetailsPage = () => {
     const { user } = useAuth();
     const [pet, setPet] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [showChat, setShowChat] = useState(false); // <--- NEW STATE
 
     useEffect(() => {
         const fetchPet = async () => {
@@ -35,17 +37,21 @@ const PetDetailsPage = () => {
     }, [id]);
 
     const handleChat = () => {
-        // We will implement the real chat logic in the next step!
-        alert("Chat feature coming soon!");
+        if (!user) {
+            alert("You must be logged in to chat!");
+            navigate("/login");
+            return;
+        }
+        setShowChat(true); // Open the chat modal
     };
 
     if (loading) return <div className="details-loading">Loading details...</div>;
     if (!pet) return <div className="details-loading">Pet not found 😕</div>;
 
-    // Helper to format age
+    // Format Age helper
     const formatAge = (age) => {
         const num = parseInt(age);
-        if (isNaN(num)) return age; // Fallback if it's text
+        if (isNaN(num)) return age;
         return num === 1 ? "1 year" : `${num} years`;
     };
 
@@ -56,10 +62,10 @@ const PetDetailsPage = () => {
             </button>
 
             <div className="details-card">
-                {/* LEFT: Image */}
+                {/* LEFT: Image (Fixed missing image bug) */}
                 <div className="image-section">
                     <img
-                        src={pet.image}
+                        src={pet.image || "https://via.placeholder.com/400?text=No+Image"}
                         className="details-image"
                         alt={pet.name}
                         onError={(e) => { e.target.src = "https://via.placeholder.com/400?text=No+Image"; }}
@@ -114,6 +120,24 @@ const PetDetailsPage = () => {
                     </div>
                 </div>
             </div>
+
+            {/* --- CHAT MODAL OVERLAY --- */}
+            {showChat && (
+                <div className="chat-modal-overlay">
+                    <div className="chat-modal-content">
+                        <div className="chat-modal-header">
+                            <h3>Chat with {pet.name}'s Owner</h3>
+                            <button onClick={() => setShowChat(false)}><FaTimes /></button>
+                        </div>
+                        <div className="chat-modal-body">
+                            <ChatComponent
+                                currentUserId={user.uid}
+                                receiverId={pet.ownerId}
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

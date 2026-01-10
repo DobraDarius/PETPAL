@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { collection, onSnapshot, query, where, deleteDoc, doc } from "firebase/firestore";
-import { db } from "../firebase/config";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
+import { db } from "../firebase/firebase";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { FaUserCircle, FaPlus, FaTrash, FaPen, FaSearch, FaFilter, FaTimes } from "react-icons/fa";
+import { FaUserCircle, FaPlus, FaSearch, FaFilter, FaTimes } from "react-icons/fa";
+import PetCard from "../components/PetCard"; // <--- IMPORT THE COMPONENT
 import "./HomePage.css";
 
 const HomePage = () => {
@@ -20,7 +21,7 @@ const HomePage = () => {
     const [search, setSearch] = useState("");
     const [filters, setFilters] = useState({
         type: "",
-        ageRange: "", // Renamed to ageRange for clarity
+        ageRange: "",
         gender: "",
         color: ""
     });
@@ -30,6 +31,7 @@ const HomePage = () => {
         catch (error) { console.error("Logout failed:", error); }
     };
 
+    // Fetch Data (Real-time)
     useEffect(() => {
         const q = query(collection(db, "pets"), where("adopted", "==", false));
         const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -39,18 +41,6 @@ const HomePage = () => {
         });
         return () => unsubscribe();
     }, []);
-
-    const handleDelete = async (e, petId) => {
-        e.stopPropagation();
-        if (window.confirm("Are you sure? This will remove the listing permanently.")) {
-            await deleteDoc(doc(db, "pets", petId));
-        }
-    };
-
-    const handleEdit = (e, petId) => {
-        e.stopPropagation();
-        navigate(`/edit-pet/${petId}`);
-    };
 
     // --- FILTER LOGIC ---
     const filteredPets = pets.filter((pet) => {
@@ -65,12 +55,10 @@ const HomePage = () => {
         const matchGender = filters.gender ? pet.gender === filters.gender : true;
         const matchColor = filters.color ? (pet.color && pet.color.toLowerCase().includes(filters.color.toLowerCase())) : true;
 
-        // 3. NUMERIC AGE RANGE LOGIC
+        // 3. Numeric Age Range
         let matchAge = true;
         if (filters.ageRange) {
-            const ageNum = parseInt(pet.age); // Convert stored string "2" to number 2
-
-            // If data is invalid (NaN), don't show it when a filter is active
+            const ageNum = parseInt(pet.age);
             if (isNaN(ageNum)) {
                 matchAge = false;
             } else {
@@ -117,7 +105,6 @@ const HomePage = () => {
 
             {/* --- CONTROLS --- */}
             <div className="controls-wrapper">
-
                 <div className="search-header-row">
                     <div className="search-box">
                         <FaSearch className="search-icon" />
@@ -150,7 +137,6 @@ const HomePage = () => {
                             <option value="Hamster">Hamster</option>
                         </select>
 
-                        {/* UPDATED AGE SELECT */}
                         <select className="modern-select" value={filters.ageRange} onChange={(e) => setFilters({...filters, ageRange: e.target.value})}>
                             <option value="">Any Age</option>
                             <option value="0-1">0 - 1 year</option>
@@ -184,7 +170,7 @@ const HomePage = () => {
                 )}
             </div>
 
-            {/* --- GRID --- */}
+            {/* --- RESULTS GRID --- */}
             <h2 className="section-title">
                 Results <span style={{fontSize:'0.6em', color:'#888'}}>({filteredPets.length})</span>
             </h2>
@@ -197,34 +183,15 @@ const HomePage = () => {
                             <p>Try changing your filters.</p>
                         </div>
                     ) : (
-                        filteredPets.map((pet) => {
-                            const isOwner = user && pet.ownerId === user.uid;
-                            return (
-                                <div key={pet.id} className="pet-card" onClick={() => navigate(`/pet/${pet.id}`)}>
-                                    {isOwner && <div className="owner-badge">MY LISTING</div>}
-                                    <div className="image-wrapper">
-                                        <img src={pet.image} alt={pet.name} onError={(e) => {e.target.src = 'https://via.placeholder.com/300?text=No+Image'}} />
-                                    </div>
-                                    <div className="pet-info">
-                                        <div className="pet-header">
-                                            <h3>{pet.name}</h3>
-                                            <span className="pet-breed-pill">{pet.type}</span>
-                                        </div>
-                                        {/* Display 'years' after the age number */}
-                                        <p className="pet-subtext">{pet.breed} • {pet.age} years • {pet.gender}</p>
-
-                                        {isOwner ? (
-                                            <div className="action-buttons">
-                                                <button className="edit-btn" onClick={(e) => handleEdit(e, pet.id)}><FaPen /></button>
-                                                <button className="delete-btn" onClick={(e) => handleDelete(e, pet.id)}><FaTrash /></button>
-                                            </div>
-                                        ) : (
-                                            <button className="details-btn">Meet {pet.name}</button>
-                                        )}
-                                    </div>
-                                </div>
-                            );
-                        })
+                        // --- USING THE NEW COMPONENT ---
+                        filteredPets.map((pet) => (
+                            <PetCard
+                                key={pet.id}
+                                pet={pet}
+                                // We check user existence to ensure safe ID passing
+                                currentUserId={user ? user.uid : null}
+                            />
+                        ))
                     )}
                 </div>
             )}

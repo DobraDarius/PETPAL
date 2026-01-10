@@ -6,7 +6,7 @@ import {
     signOut
 } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
-import { auth, db } from '../firebase/config';
+import { auth, db } from '../firebase/firebase';
 
 const AuthContext = createContext();
 

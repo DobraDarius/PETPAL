@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { db } from "../../firebase/config";
+import { db } from "../../firebase/firebase";
 import "./AddPetPage.css"; // Refolosim stilul de la Add Page ca să arate la fel
 
 const EditPetPage = () => {
