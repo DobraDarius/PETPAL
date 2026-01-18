@@ -12,6 +12,7 @@ public class ChatMessage {
     private String content;
     private Long timestamp;
     private boolean isRead;
+    private String senderName;
 
     public ChatMessage() {}
 }

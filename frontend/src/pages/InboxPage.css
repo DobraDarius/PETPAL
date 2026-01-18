@@ -1,0 +1,117 @@
+.inbox-container {
+    display: flex;
+    height: 80vh;
+    max-width: 1000px;
+    margin: 40px auto;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    font-family: inherit;
+}
+
+/* --- LEFT SIDEBAR --- */
+.inbox-sidebar {
+    width: 320px;
+    background-color: #f9fafb;
+    border-right: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+}
+
+.inbox-header {
+    padding: 20px;
+    margin: 0;
+    background-color: #fff;
+    border-bottom: 1px solid #e5e7eb;
+    color: #111827;
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.contact-list {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px 20px;
+    border-bottom: 1px solid #f3f4f6;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.contact-item:hover {
+    background-color: #f3f4f6;
+}
+
+.contact-item.active {
+    background-color: #eff6ff; /* Light Blue */
+    border-left: 4px solid #3b82f6; /* Blue Accent */
+}
+
+.contact-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.contact-name {
+    font-weight: 600;
+    color: #374151;
+    font-size: 0.95rem;
+}
+
+.contact-subtext {
+    font-size: 0.8rem;
+    color: #9ca3af;
+}
+
+/* --- RIGHT CHAT AREA --- */
+.inbox-chat-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    position: relative;
+}
+
+.chat-header-bar {
+    padding: 15px 25px;
+    background-color: #fff;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.1rem;
+    color: #1f2937;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    z-index: 10;
+}
+
+.inbox-placeholder {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #9ca3af;
+    text-align: center;
+    background-color: #f9fafb;
+}
+
+.inbox-placeholder h3 {
+    margin-top: 15px;
+    color: #4b5563;
+}
+
+/* Scrollbar styling for a nicer look */
+.contact-list::-webkit-scrollbar {
+    width: 6px;
+}
+.contact-list::-webkit-scrollbar-thumb {
+    background-color: #d1d5db;
+    border-radius: 4px;
+}

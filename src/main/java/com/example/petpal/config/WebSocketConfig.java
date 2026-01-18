@@ -19,10 +19,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        // This is the endpoint the Frontend will connect to
-        // Example JS: var socket = new SockJS('/ws');
         registry.addEndpoint("/ws")
-                .setAllowedOriginPatterns("*") // Allow all origins for dev
+                // ✅ USE PATTERNS (Allows Serveo, Netlify, Localhost, everything)
+                .setAllowedOriginPatterns("*")
                 .withSockJS();
     }
 }

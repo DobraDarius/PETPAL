@@ -1,82 +1,58 @@
-/* Container fills the card width */
-.chat-container {
+/* 1. Make the window fill the parent (modal-body) */
+.chat-window {
     display: flex;
     flex-direction: column;
     height: 100%;
-    background-color: #fff;
-    font-family: sans-serif;
 }
 
-/* Scrollable message area */
-.chat-box {
-    flex: 1;
-    overflow-y: auto;
-    padding: 8px;
+/* 2. The Message List - This is where scrolling happens */
+.chat-messages {
+    flex: 1;             /* Grow to fill space */
+    overflow-y: auto;    /* ✅ Enable Vertical Scrolling */
+    padding: 20px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    background-color: #f8f9fa; /* Light gray background for contrast */
-    border-radius: 6px;
-    margin-bottom: 5px;
+    gap: 12px;
 }
 
-/* Individual Message Bubbles */
+/* Optional: Custom Scrollbar for Chrome/Safari/Edge */
+.chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+.chat-messages::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 3px;
+}
+
+/* Message Bubbles */
 .message-bubble {
-    max-width: 85%;
-    padding: 6px 10px;
+    max-width: 80%;
+    padding: 10px 15px;
     border-radius: 12px;
-    font-size: 0.85rem; /* Smaller text for small cards */
-    line-height: 1.3;
-    position: relative;
-    word-wrap: break-word;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    word-wrap: break-word; /* Prevent long words from breaking layout */
 }
 
-/* User's messages (Right side) */
-.sent {
+.my-message {
     align-self: flex-end;
-    background-color: #3b82f6; /* Matches your "Details" button blue */
+    background-color: #2563eb;
     color: white;
     border-bottom-right-radius: 2px;
 }
 
-/* Partner's messages (Left side) */
-.received {
+.their-message {
     align-self: flex-start;
-    background-color: #e5e7eb;
-    color: #1f2937;
+    background-color: #e2e8f0;
+    color: #1e293b;
     border-bottom-left-radius: 2px;
 }
 
 /* Input Area */
 .chat-input-area {
+    padding: 15px;
+    background: white;
+    border-top: 1px solid #e2e8f0;
     display: flex;
-    gap: 5px;
-    padding-top: 5px;
-}
-
-.chat-input-area input {
-    flex: 1;
-    padding: 6px;
-    border: 1px solid #ddd;
-    border-radius: 15px;
-    font-size: 0.85rem;
-    outline: none;
-}
-
-.chat-input-area input:focus {
-    border-color: #3b82f6;
-}
-
-.chat-input-area button {
-    background-color: #3b82f6;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
-    cursor: pointer;
-    font-size: 0.8rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    gap: 10px;
 }

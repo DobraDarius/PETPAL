@@ -10,7 +10,8 @@ const PetCard = ({ pet, currentUserId }) => {
     const [showChat, setShowChat] = useState(false);
 
     // 1. Check ownership
-    const isOwner = currentUserId && pet.ownerId === currentUserId;
+    // Convert both to String to ensure "5" equals 5
+    const isOwner = currentUserId && String(pet.ownerId) === String(currentUserId);
 
     // 2. Handle Delete Logic (Moved from HomePage)
     const handleDelete = async (e) => {
@@ -44,10 +45,15 @@ const PetCard = ({ pet, currentUserId }) => {
             {isOwner && <div style={styles.ownerBadge}>MY LISTING</div>}
 
             <img
-                src={pet.image}
+                // 1. Try the pet image first. If missing, use a reliable placeholder immediately.
+                src={pet.image || "https://placehold.co/300x200?text=No+Image"}
                 alt={pet.name}
                 style={styles.image}
-                onError={(e) => {e.target.src = 'https://via.placeholder.com/300?text=No+Image'}}
+                // 2. If the real image fails to load, fallback to the placeholder
+                onError={(e) => {
+                    e.target.onerror = null; // Prevents infinite loop if placeholder also fails
+                    e.target.src = "https://placehold.co/300x200?text=No+Image";
+                }}
             />
 
             <div style={styles.info}>

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { doc, getDoc } from "firebase/firestore";
-import { db } from "../firebase/firebase"; // Fixed import
+import { db } from "../firebase/firebase";
 import { useAuth } from "../context/AuthContext";
 import { FaArrowLeft, FaEnvelope, FaComments, FaMars, FaVenus, FaTimes } from "react-icons/fa";
-import ChatComponent from "../components/ChatComponent"; // <--- IMPORT CHAT
+import ChatComponent from "../components/ChatComponent";
 import "./PetDetailsPage.css";
 
 const PetDetailsPage = () => {
@@ -13,7 +13,7 @@ const PetDetailsPage = () => {
     const { user } = useAuth();
     const [pet, setPet] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [showChat, setShowChat] = useState(false); // <--- NEW STATE
+    const [showChat, setShowChat] = useState(false);
 
     useEffect(() => {
         const fetchPet = async () => {
@@ -42,18 +42,19 @@ const PetDetailsPage = () => {
             navigate("/login");
             return;
         }
-        setShowChat(true); // Open the chat modal
+        setShowChat(true);
     };
 
     if (loading) return <div className="details-loading">Loading details...</div>;
     if (!pet) return <div className="details-loading">Pet not found 😕</div>;
 
-    // Format Age helper
     const formatAge = (age) => {
         const num = parseInt(age);
         if (isNaN(num)) return age;
         return num === 1 ? "1 year" : `${num} years`;
     };
+
+    const isOwner = user && String(user.uid) === String(pet.ownerId);
 
     return (
         <div className="details-container">
@@ -62,7 +63,6 @@ const PetDetailsPage = () => {
             </button>
 
             <div className="details-card">
-                {/* LEFT: Image (Fixed missing image bug) */}
                 <div className="image-section">
                     <img
                         src={pet.image || "https://via.placeholder.com/400?text=No+Image"}
@@ -72,7 +72,6 @@ const PetDetailsPage = () => {
                     />
                 </div>
 
-                {/* RIGHT: Info */}
                 <div className="info-section">
                     <div className="header-info">
                         <h1 className="pet-name">{pet.name}</h1>
@@ -107,27 +106,38 @@ const PetDetailsPage = () => {
                     </div>
 
                     <div className="action-buttons-row">
-                        <button className="action-btn chat-btn" onClick={handleChat}>
-                            <FaComments /> Chat with Owner
-                        </button>
+                        {!isOwner ? (
+                            <>
+                                <button className="action-btn chat-btn" onClick={handleChat}>
+                                    <FaComments /> Chat with Owner
+                                </button>
 
-                        <a
-                            href={`mailto:${pet.shelterEmail}?subject=Adoption Inquiry: ${pet.name}`}
-                            className="action-btn email-btn"
-                        >
-                            <FaEnvelope /> Send Email
-                        </a>
+                                <a
+                                    href={`mailto:${pet.shelterEmail}?subject=Adoption Inquiry: ${pet.name}`}
+                                    className="action-btn email-btn"
+                                >
+                                    <FaEnvelope /> Send Email
+                                </a>
+                            </>
+                        ) : (
+                            <div style={{ color: '#6b7280', fontStyle: 'italic', marginTop: '10px' }}>
+                                This is your listing
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
 
             {/* --- CHAT MODAL OVERLAY --- */}
-            {showChat && (
+            {showChat && !isOwner && (
                 <div className="chat-modal-overlay">
                     <div className="chat-modal-content">
                         <div className="chat-modal-header">
                             <h3>Chat with {pet.name}'s Owner</h3>
-                            <button onClick={() => setShowChat(false)}><FaTimes /></button>
+                            {/* ✅ FIX: Added className "close-chat-btn" here */}
+                            <button className="close-chat-btn" onClick={() => setShowChat(false)}>
+                                <FaTimes />
+                            </button>
                         </div>
                         <div className="chat-modal-body">
                             <ChatComponent
