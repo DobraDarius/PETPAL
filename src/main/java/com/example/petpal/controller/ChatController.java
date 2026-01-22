@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
+import java.util.Map;
 
 @Controller
 public class ChatController {
@@ -37,10 +38,12 @@ public class ChatController {
     }
 
     // --- 2. REST API (Inbox)
+    // ... inside ChatController ...
+
     @GetMapping("/api/contacts/{userId}")
     @ResponseBody
-    public ResponseEntity<List<String>> getContacts(@PathVariable String userId) {
-        List<String> contacts = chatService.getInteractedUsers(userId);
+    public ResponseEntity<List<Map<String, String>>> getContacts(@PathVariable String userId) {
+        List<Map<String, String>> contacts = chatService.getInteractedUsers(userId);
         return ResponseEntity.ok(contacts);
     }
 

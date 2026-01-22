@@ -3,12 +3,14 @@ import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import ChatComponent from '../components/ChatComponent';
 import { FaUserCircle, FaCommentDots } from 'react-icons/fa';
-import './InboxPage.css'; // <--- Import the CSS here
+import './InboxPage.css';
 
 const InboxPage = () => {
     const { user } = useAuth();
     const [contacts, setContacts] = useState([]);
-    const [selectedContactId, setSelectedContactId] = useState(null);
+
+    // ✅ Change 1: Store the entire contact OBJECT (id + name), not just the ID string
+    const [selectedContact, setSelectedContact] = useState(null);
 
     useEffect(() => {
         if (user) {
@@ -18,7 +20,7 @@ const InboxPage = () => {
 
     const fetchContacts = async () => {
         try {
-            // Ensure this matches your Java Controller URL
+            // This now returns a list of objects: [{id: "...", name: "Pablo"}, ...]
             const res = await axios.get(`http://localhost:8080/api/contacts/${user.uid}`);
             setContacts(res.data);
         } catch (error) {
@@ -37,15 +39,19 @@ const InboxPage = () => {
                             No messages yet.
                         </p>
                     ) : (
-                        contacts.map((contactId) => (
+                        // ✅ Change 2: Map over objects
+                        contacts.map((contact) => (
                             <div
-                                key={contactId}
-                                className={`contact-item ${selectedContactId === contactId ? 'active' : ''}`}
-                                onClick={() => setSelectedContactId(contactId)}
+                                key={contact.id}
+                                className={`contact-item ${selectedContact?.id === contact.id ? 'active' : ''}`}
+                                onClick={() => setSelectedContact(contact)} // Save the whole object
                             >
                                 <FaUserCircle size={32} color="#cbd5e1" />
                                 <div className="contact-info">
-                                    <span className="contact-name">User: {contactId.substring(0, 6)}...</span>
+                                    {/* ✅ Change 3: Display the Real Name */}
+                                    <span className="contact-name">
+                                        {contact.name || "Unknown User"}
+                                    </span>
                                     <span className="contact-subtext">Click to read chat</span>
                                 </div>
                             </div>
@@ -56,17 +62,19 @@ const InboxPage = () => {
 
             {/* RIGHT CHAT AREA */}
             <div className="inbox-chat-area">
-                {selectedContactId ? (
+                {selectedContact ? (
                     <>
                         <div className="chat-header-bar">
                             <FaUserCircle size={24} color="#3b82f6" />
-                            <b>User {selectedContactId.substring(0, 6)}...</b>
+                            {/* ✅ Change 4: Show name in header */}
+                            <b>{selectedContact.name}</b>
                         </div>
-                        {/* reusing your chat component */}
+
                         <div style={{ flex: 1, overflow: 'hidden' }}>
+                            {/* ✅ Change 5: Pass the ID to the chat component */}
                             <ChatComponent
                                 currentUserId={user.uid}
-                                receiverId={selectedContactId}
+                                receiverId={selectedContact.id}
                             />
                         </div>
                     </>

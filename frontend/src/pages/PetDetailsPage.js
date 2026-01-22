@@ -1,153 +1,151 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "../firebase/firebase";
+import axios from "axios";
 import { useAuth } from "../context/AuthContext";
-import { FaArrowLeft, FaEnvelope, FaComments, FaMars, FaVenus, FaTimes } from "react-icons/fa";
-import ChatComponent from "../components/ChatComponent";
+import Navbar from "../components/Navbar";
+import { FaArrowLeft, FaMars, FaVenus, FaEnvelope, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import "./PetDetailsPage.css";
 
 const PetDetailsPage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const { user } = useAuth();
+
     const [pet, setPet] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [showChat, setShowChat] = useState(false);
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
     useEffect(() => {
         const fetchPet = async () => {
             try {
-                const docRef = doc(db, "pets", id);
-                const docSnap = await getDoc(docRef);
-
-                if (docSnap.exists()) {
-                    setPet({ id: docSnap.id, ...docSnap.data() });
-                } else {
-                    console.log("No such document!");
-                }
-            } catch (error) {
-                console.error("Error fetching pet:", error);
+                const res = await axios.get(`http://localhost:8080/pets/${id}`);
+                setPet(res.data);
+            } catch (err) {
+                console.error("Error fetching pet details:", err);
             } finally {
                 setLoading(false);
             }
         };
-
         fetchPet();
     }, [id]);
 
-    const handleChat = () => {
+    const handleAdopt = () => {
         if (!user) {
-            alert("You must be logged in to chat!");
+            alert("Please log in to contact the owner.");
             navigate("/login");
             return;
         }
-        setShowChat(true);
+        // Navigate to inbox with the owner pre-selected (future feature)
+        navigate("/inbox");
     };
 
-    if (loading) return <div className="details-loading">Loading details...</div>;
-    if (!pet) return <div className="details-loading">Pet not found 😕</div>;
-
-    const formatAge = (age) => {
-        const num = parseInt(age);
-        if (isNaN(num)) return age;
-        return num === 1 ? "1 year" : `${num} years`;
+    // ✅ IMAGE SLIDER LOGIC
+    const nextImage = () => {
+        if (!pet?.images) return;
+        setCurrentImageIndex((prev) => (prev === pet.images.length - 1 ? 0 : prev + 1));
     };
 
-    const isOwner = user && String(user.uid) === String(pet.ownerId);
+    const prevImage = () => {
+        if (!pet?.images) return;
+        setCurrentImageIndex((prev) => (prev === 0 ? pet.images.length - 1 : prev - 1));
+    };
+
+    if (loading) return <div className="loading-screen">Loading details...</div>;
+    if (!pet) return <div className="error-screen">Pet not found. 😕</div>;
+
+    // Fallback if images list is empty
+    const displayImages = (pet.images && pet.images.length > 0)
+        ? pet.images
+        : [pet.imageUrl || "https://via.placeholder.com/600?text=No+Image"];
 
     return (
-        <div className="details-container">
-            <button className="back-btn-modern" onClick={() => navigate(-1)}>
-                <FaArrowLeft /> Back
-            </button>
+        <div className="pet-details-container">
+            <Navbar />
 
-            <div className="details-card">
-                <div className="image-section">
-                    <img
-                        src={pet.image || "https://via.placeholder.com/400?text=No+Image"}
-                        className="details-image"
-                        alt={pet.name}
-                        onError={(e) => { e.target.src = "https://via.placeholder.com/400?text=No+Image"; }}
-                    />
-                </div>
+            <div className="details-wrapper">
+                <button className="back-btn" onClick={() => navigate(-1)}>
+                    <FaArrowLeft /> Back
+                </button>
 
-                <div className="info-section">
-                    <div className="header-info">
-                        <h1 className="pet-name">{pet.name}</h1>
-                        <span className="pet-breed-badge">{pet.breed}</span>
-                    </div>
+                <div className="details-card">
+                    {/* LEFT SIDE: IMAGE SLIDER */}
+                    <div className="details-image-section">
+                        <img
+                            src={displayImages[currentImageIndex]}
+                            alt={pet.name}
+                            className="main-detail-image"
+                        />
 
-                    <div className="tags-row">
-                        <div className="info-tag">
-                            <span className="label">Type</span>
-                            <span className="value">{pet.type}</span>
-                        </div>
-                        <div className="info-tag">
-                            <span className="label">Age</span>
-                            <span className="value">{formatAge(pet.age)}</span>
-                        </div>
-                        <div className="info-tag">
-                            <span className="label">Gender</span>
-                            <span className="value">
-                                {pet.gender === "Male" ? <FaMars color="#3b82f6"/> : <FaVenus color="#ec4899"/>}
-                                {" "}{pet.gender}
-                            </span>
-                        </div>
-                        <div className="info-tag">
-                            <span className="label">Color</span>
-                            <span className="value">{pet.color}</span>
-                        </div>
-                    </div>
-
-                    <div className="story-section">
-                        <h3>My Story</h3>
-                        <p>{pet.description}</p>
-                    </div>
-
-                    <div className="action-buttons-row">
-                        {!isOwner ? (
+                        {/* Show arrows only if multiple images exist */}
+                        {displayImages.length > 1 && (
                             <>
-                                <button className="action-btn chat-btn" onClick={handleChat}>
-                                    <FaComments /> Chat with Owner
+                                <button className="slider-arrow left" onClick={prevImage}>
+                                    <FaChevronLeft />
+                                </button>
+                                <button className="slider-arrow right" onClick={nextImage}>
+                                    <FaChevronRight />
                                 </button>
 
-                                <a
-                                    href={`mailto:${pet.shelterEmail}?subject=Adoption Inquiry: ${pet.name}`}
-                                    className="action-btn email-btn"
-                                >
-                                    <FaEnvelope /> Send Email
-                                </a>
+                                <div className="slider-dots">
+                                    {displayImages.map((_, idx) => (
+                                        <span
+                                            key={idx}
+                                            className={`dot ${idx === currentImageIndex ? 'active' : ''}`}
+                                            onClick={() => setCurrentImageIndex(idx)}
+                                        />
+                                    ))}
+                                </div>
                             </>
-                        ) : (
-                            <div style={{ color: '#6b7280', fontStyle: 'italic', marginTop: '10px' }}>
-                                This is your listing
-                            </div>
                         )}
+                    </div>
+
+                    {/* RIGHT SIDE: INFO */}
+                    <div className="details-info-section">
+                        <div className="details-header">
+                            <h1>{pet.name}</h1>
+                            <span className="breed-badge">{pet.breed}</span>
+                        </div>
+
+                        <div className="info-grid">
+                            <div className="info-item">
+                                <label>Type</label>
+                                <p>{pet.type}</p>
+                            </div>
+                            <div className="info-item">
+                                <label>Age</label>
+                                <p>{pet.age} years</p>
+                            </div>
+                            <div className="info-item">
+                                <label>Gender</label>
+                                <p className="gender-row">
+                                    {pet.gender}
+                                    {pet.gender === 'Male' ? <FaMars color="#3b82f6"/> : <FaVenus color="#ec4899"/>}
+                                </p>
+                            </div>
+                            <div className="info-item">
+                                <label>Color</label>
+                                <p>{pet.color || "N/A"}</p>
+                            </div>
+                        </div>
+
+                        <div className="story-section">
+                            <h3>My Story</h3>
+                            <p>{pet.description}</p>
+                        </div>
+
+                        {/* Action Area */}
+                        <div className="action-area">
+                            {user?.uid === pet.ownerId ? (
+                                <p className="owner-msg"><em>This is your listing</em></p>
+                            ) : (
+                                <button className="adopt-btn" onClick={handleAdopt}>
+                                    <FaEnvelope /> Contact Owner
+                                </button>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
-
-            {/* --- CHAT MODAL OVERLAY --- */}
-            {showChat && !isOwner && (
-                <div className="chat-modal-overlay">
-                    <div className="chat-modal-content">
-                        <div className="chat-modal-header">
-                            <h3>Chat with {pet.name}'s Owner</h3>
-                            {/* ✅ FIX: Added className "close-chat-btn" here */}
-                            <button className="close-chat-btn" onClick={() => setShowChat(false)}>
-                                <FaTimes />
-                            </button>
-                        </div>
-                        <div className="chat-modal-body">
-                            <ChatComponent
-                                currentUserId={user.uid}
-                                receiverId={pet.ownerId}
-                            />
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };
