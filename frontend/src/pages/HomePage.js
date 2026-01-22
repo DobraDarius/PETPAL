@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { collection, onSnapshot, query, where } from "firebase/firestore";
-import { db } from "../firebase/firebase";
 import { useNavigate } from "react-router-dom";
+import axios from "axios"; // ✅ Use Axios instead of Firebase directly
 import { useAuth } from "../context/AuthContext";
 import { FaUserCircle, FaPlus, FaSearch, FaFilter, FaTimes } from "react-icons/fa";
-import PetCard from "../components/PetCard"; // <--- IMPORT THE COMPONENT
+import PetCard from "../components/PetCard";
 import "./HomePage.css";
 
 const HomePage = () => {
@@ -31,20 +30,32 @@ const HomePage = () => {
         catch (error) { console.error("Logout failed:", error); }
     };
 
-    // Fetch Data (Real-time)
+    // ✅ FETCH DATA FROM JAVA BACKEND
     useEffect(() => {
-        const q = query(collection(db, "pets"), where("adopted", "==", false));
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const petsData = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-            setPets(petsData);
-            setLoading(false);
-        });
-        return () => unsubscribe();
+        const fetchPets = async () => {
+            try {
+                // This hits your Java Controller -> PetService -> Firestore
+                // It ensures you only get valid, "safe" pets.
+                const res = await axios.get("http://localhost:8080/pets");
+                setPets(res.data);
+            } catch (err) {
+                console.error("Error fetching pets from server:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchPets();
     }, []);
 
     // --- FILTER LOGIC ---
     const filteredPets = pets.filter((pet) => {
-        // 1. Search
+        // 0. Status Check (Only show AVAILABLE pets)
+        // We handle case sensitivity safely (Available vs AVAILABLE)
+        const isAvailable = pet.adoptionStatus && pet.adoptionStatus.toUpperCase() === 'AVAILABLE';
+        if (!isAvailable) return false;
+
+        // 1. Search (Name or Breed)
         const term = search.toLowerCase();
         const pName = pet.name ? pet.name.toLowerCase() : "";
         const pBreed = pet.breed ? pet.breed.toLowerCase() : "";
@@ -132,9 +143,8 @@ const HomePage = () => {
                             <option value="">All Types</option>
                             <option value="Dog">Dog</option>
                             <option value="Cat">Cat</option>
-                            <option value="Rabbit">Rabbit</option>
                             <option value="Bird">Bird</option>
-                            <option value="Hamster">Hamster</option>
+                            <option value="Other">Other</option>
                         </select>
 
                         <select className="modern-select" value={filters.ageRange} onChange={(e) => setFilters({...filters, ageRange: e.target.value})}>
@@ -151,16 +161,6 @@ const HomePage = () => {
                             <option value="Female">Female</option>
                         </select>
 
-                        <select className="modern-select" value={filters.color} onChange={(e) => setFilters({...filters, color: e.target.value})}>
-                            <option value="">Any Color</option>
-                            <option value="Black">Black</option>
-                            <option value="White">White</option>
-                            <option value="Brown">Brown</option>
-                            <option value="Golden">Golden</option>
-                            <option value="Grey">Grey</option>
-                            <option value="Spotted">Spotted</option>
-                        </select>
-
                         {(activeFilterCount > 0 || search) && (
                             <button className="clear-filters-btn" onClick={clearFilters} title="Clear Filters">
                                 <FaTimes />
@@ -175,7 +175,7 @@ const HomePage = () => {
                 Results <span style={{fontSize:'0.6em', color:'#888'}}>({filteredPets.length})</span>
             </h2>
 
-            {loading ? <p>Loading...</p> : (
+            {loading ? <p style={{textAlign: 'center', marginTop: '20px'}}>Loading pets...</p> : (
                 <div className="cards-container">
                     {filteredPets.length === 0 ? (
                         <div style={{ width:'100%', textAlign:'center', marginTop:'40px', color:'#888' }}>
@@ -183,12 +183,10 @@ const HomePage = () => {
                             <p>Try changing your filters.</p>
                         </div>
                     ) : (
-                        // --- USING THE NEW COMPONENT ---
                         filteredPets.map((pet) => (
                             <PetCard
                                 key={pet.id}
                                 pet={pet}
-                                // We check user existence to ensure safe ID passing
                                 currentUserId={user ? user.uid : null}
                             />
                         ))

@@ -1,123 +1,192 @@
-.addpet-container {
+/* CONTAINER: Full screen with a modern gradient background */
+.add-pet-container {
+    min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 90vh;
-    background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+    background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%); /* Clean Light Gray */
+    /* OR use your orange brand gradient if you prefer: */
+    /* background: linear-gradient(135deg, #fff1eb 0%, #ace0f9 100%); */
     font-family: 'Poppins', sans-serif;
+    padding: 40px 20px;
 }
 
-.addpet-card {
-    background-color: #fff;
+/* CARD: The white box holding the form */
+.form-wrapper {
+    background: #ffffff;
+    width: 100%;
+    max-width: 700px;
     padding: 40px;
-    border-radius: 20px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-    max-width: 500px;
-    width: 100%;
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+    animation: slideUp 0.6s ease-out;
+}
+
+h2 {
     text-align: center;
-    animation: fadeIn 0.8s ease-in-out;
-}
-
-.addpet-title {
-    font-size: 28px;
+    color: #1e293b; /* Dark Blue-Grey */
+    font-size: 2rem;
     margin-bottom: 10px;
-    color: #333;
+    font-weight: 700;
 }
 
-.addpet-subtitle {
-    font-size: 14px;
-    margin-bottom: 30px;
-    color: #666;
+/* FORM GRID: Align inputs nicely */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Space between rows */
 }
 
-.addpet-form input,
-.addpet-form textarea {
+/* Use Grid for the short inputs (Name, Breed, Age) */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 2 columns */
+    gap: 20px;
+}
+
+/* Make Age/Gender fit well */
+.form-row.three-cols {
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+/* INPUTS & SELECTS */
+input, select, textarea {
     width: 100%;
-    padding: 12px 15px;
-    margin-bottom: 15px;
+    padding: 14px 18px;
+    border: 2px solid #e2e8f0;
     border-radius: 12px;
-    border: 1px solid #ddd;
-    font-size: 14px;
+    font-size: 0.95rem;
+    background-color: #f8fafc;
     transition: all 0.3s ease;
-}
-
-.addpet-form input:focus,
-.addpet-form textarea:focus {
-    border-color: #fda085;
-    box-shadow: 0 0 10px rgba(253, 160, 133, 0.5);
     outline: none;
+    color: #334155;
+    font-family: inherit;
+    box-sizing: border-box; /* Fixes padding issues */
 }
 
-.addpet-form textarea {
-    resize: none;
-    min-height: 80px;
+input::placeholder, textarea::placeholder {
+    color: #94a3b8;
 }
 
-.submit-btn {
-    background: #f6d365;
-    background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
-    color: white;
-    border: none;
-    padding: 12px 0;
-    width: 100%;
-    border-radius: 12px;
-    font-size: 16px;
-    cursor: pointer;
+/* Focus Effect: Soft Blue/Orange Glow */
+input:focus, select:focus, textarea:focus {
+    border-color: #3b82f6; /* Blue focus */
+    background-color: #fff;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+/* --- UPLOAD SECTION --- */
+.image-upload-section {
+    border: 2px dashed #cbd5e1;
+    border-radius: 16px;
+    padding: 30px;
+    text-align: center;
+    background-color: #f8fafc;
     transition: all 0.3s ease;
     margin-top: 10px;
 }
 
-.submit-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(253,160,133,0.4);
+.image-upload-section:hover {
+    border-color: #3b82f6;
+    background-color: #eff6ff; /* Light blue tint on hover */
 }
 
-.back-btn {
-    background: transparent;
-    border: none;
-    color: #f56a5a;
-    margin-top: 15px;
-    cursor: pointer;
-    font-weight: bold;
-}
-
-.back-btn:hover {
-    text-decoration: underline;
-}
-
-@keyframes fadeIn {
-    from {opacity: 0; transform: translateY(-20px);}
-    to {opacity: 1; transform: translateY(0);}
-}
-.addpet-form input,
-.addpet-form textarea,
-.addpet-form select {   /* <--- AICI AM ADĂUGAT SELECT */
-    width: 100%;
-    padding: 12px 15px;
-    margin-bottom: 15px;
-    border-radius: 12px;
-    border: 1px solid #ddd;
-    font-size: 14px;
-    transition: all 0.3s ease;
-    background-color: white; /* Important pentru dropdown */
-    font-family: 'Poppins', sans-serif;
-}
-
-.select-container {
-    text-align: left;
-    margin-bottom: 5px;
-}
-
-.input-label {
-    font-size: 12px;
-    color: #666;
-    margin-left: 5px;
+.upload-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: #ffffff;
+    color: #3b82f6;
+    padding: 10px 24px;
+    border-radius: 30px;
     font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    border: 1px solid #e2e8f0;
+    transition: transform 0.2s;
 }
 
-/* Stil specific pentru când dai click pe dropdown */
-.addpet-form select:focus {
-    border-color: #fda085;
-    box-shadow: 0 0 10px rgba(253, 160, 133, 0.5);
-    outline: none;
+.upload-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+/* PREVIEW GRID */
+.preview-grid {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.preview-card {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    border: 2px solid white;
+}
+
+.preview-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.preview-card button {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background: rgba(220, 38, 38, 0.9); /* Red */
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+}
+
+/* --- SUBMIT BUTTON --- */
+.submit-btn {
+    background: linear-gradient(135deg, #f97316 0%, #fb923c 100%); /* Orange Gradient */
+    color: white;
+    border: none;
+    padding: 16px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin-top: 10px;
+    box-shadow: 0 10px 25px rgba(249, 115, 22, 0.3);
+}
+
+.submit-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 35px rgba(249, 115, 22, 0.4);
+}
+
+.submit-btn:disabled {
+    background: #cbd5e1;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* ANIMATION */
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
 }

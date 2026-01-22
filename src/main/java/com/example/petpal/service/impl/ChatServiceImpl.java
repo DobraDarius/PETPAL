@@ -15,6 +15,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.Map;
+import java.util.HashMap;
 
 @Service
 public class ChatServiceImpl implements ChatService {
@@ -30,19 +32,52 @@ public class ChatServiceImpl implements ChatService {
         firestore.collection("messages").document(message.getId()).set(message);
     }
 
+    // ... inside ChatServiceImpl ...
+
     @Override
-    public List<String> getInteractedUsers(String currentUserId) {
+    public List<Map<String, String>> getInteractedUsers(String currentUserId) {
         try {
+            // 1. Get all messages where I am the receiver
             ApiFuture<QuerySnapshot> future = firestore.collection("messages")
                     .whereEqualTo("receiverId", currentUserId)
                     .get();
             List<QueryDocumentSnapshot> documents = future.get().getDocuments();
 
-            return documents.stream()
+            // 2. Extract unique Sender IDs
+            List<String> uniqueIds = documents.stream()
                     .map(doc -> doc.getString("senderId"))
                     .filter(id -> id != null)
+                    .filter(id -> !id.equals(currentUserId))
                     .distinct()
                     .collect(Collectors.toList());
+
+            // 3. For each ID, fetch the Real Name from "users" collection
+            List<Map<String, String>> contactList = new ArrayList<>();
+
+            for (String id : uniqueIds) {
+                // Fetch User Doc
+                var userDoc = firestore.collection("users").document(id).get().get();
+
+                String displayName = "Unknown User";
+                if (userDoc.exists()) {
+                    // Try to get 'name', fall back to 'email', then ID
+                    if (userDoc.getString("name") != null) {
+                        displayName = userDoc.getString("name");
+                    } else if (userDoc.getString("email") != null) {
+                        displayName = userDoc.getString("email");
+                    }
+                }
+
+                // Create a nice object: { "id": "123", "name": "Pablo" }
+                Map<String, String> contact = new HashMap<>();
+                contact.put("id", id);
+                contact.put("name", displayName);
+
+                contactList.add(contact);
+            }
+
+            return contactList;
+
         } catch (Exception e) {
             e.printStackTrace();
             return Collections.emptyList();

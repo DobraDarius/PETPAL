@@ -1,154 +1,187 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { db } from "../../firebase/firebase";
+import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
+import { FaCloudUploadAlt, FaTimes } from "react-icons/fa";
 import "./AddPetPage.css";
 
 const AddPetPage = () => {
-    const navigate = useNavigate();
     const { user } = useAuth();
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
+    const navigate = useNavigate();
 
-    const [pet, setPet] = useState({
-        name: "",
-        type: "Dog",
-        breed: "",
-        gender: "Male",
-        age: "",   // Now this will be a number string like "2"
-        color: "",
-        description: "",
-        image: ""
+    const [images, setImages] = useState([]);
+    const [loading, setLoading] = useState(false);
+
+    const [formData, setFormData] = useState({
+        name: "", breed: "", age: "", type: "Dog",
+        gender: "Male", color: "", description: "",
+        adoptionStatus: "AVAILABLE",
+        shelterEmail: user?.email || ""
     });
 
-    const petTypes = ["Dog", "Cat", "Rabbit", "Hamster", "Bird", "Other"];
-    const genders = ["Male", "Female"];
-
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setPet({ ...pet, [name]: value });
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    // ✅ NEW SETTINGS: More aggressive compression
+    const resizeImage = (file) => {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    // 👇 Reduced from 800 to 600 for safety
+                    const MAX_WIDTH = 600;
+                    const MAX_HEIGHT = 600;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
+                    }
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // 👇 Reduced quality to 0.5 (50%) to save space
+                    resolve(canvas.toDataURL('image/jpeg', 0.5));
+                };
+            };
+        });
+    };
+
+    const handleImageChange = async (e) => {
+        const files = Array.from(e.target.files);
+
+        // ⛔ LIMIT: Prevent uploading more than 3 images total
+        if (images.length + files.length > 3) {
+            alert("You can only upload a maximum of 3 photos.");
+            return;
+        }
+
+        const resizedImages = [];
+
+        for (const file of files) {
+            try {
+                const base64 = await resizeImage(file);
+                // Check if a single image is somehow massive (unlikely now)
+                if (base64.length > 500000) {
+                    alert(`Skipping ${file.name} because it is too large even after compression.`);
+                    continue;
+                }
+                resizedImages.push(base64);
+            } catch (err) {
+                console.error("Error resizing image", err);
+            }
+        }
+
+        setImages((prev) => [...prev, ...resizedImages]);
+    };
+
+    const removeImage = (index) => {
+        setImages(images.filter((_, i) => i !== index));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-        setError("");
 
         try {
-            // Default image logic
-            let finalImage = pet.image;
-            if (!finalImage) {
-                if (pet.type === "Dog") finalImage = "https://place.dog/300/300";
-                else if (pet.type === "Cat") finalImage = "https://placekitten.com/300/300";
-                else finalImage = "https://via.placeholder.com/300?text=No+Image";
-            }
-
-            await addDoc(collection(db, "pets"), {
-                ...pet,
-                image: finalImage,
+            const petData = {
+                ...formData,
+                age: parseInt(formData.age),
                 ownerId: user.uid,
-                shelterEmail: user.email,
-                adopted: false,
-                createdAt: serverTimestamp()
-            });
+                imageUrl: images[0] || "",
+                images: images
+            };
 
+            await axios.post("http://localhost:8080/pets", petData);
+            alert("Pet added successfully!");
             navigate("/");
-        } catch (err) {
-            console.error("Error adding pet:", err);
-            setError("Error saving pet. Please try again.");
+        } catch (error) {
+            console.error("Error adding pet:", error);
+            alert("Failed to add pet. The photos might still be too large.");
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="addpet-container">
-            <div className="addpet-card">
-                <h1 className="addpet-title">🐾 List a New Pet</h1>
-                <p className="addpet-subtitle">Help them find a loving home.</p>
+        <div className="add-pet-container">
+            <div className="form-wrapper">
+                <h2>Add a New Pet 🐾</h2>
+                <form onSubmit={handleSubmit}>
 
-                {error && <p style={{ color: "red", marginBottom: "15px" }}>{error}</p>}
-
-                <form className="addpet-form" onSubmit={handleSubmit}>
-                    <input
-                        type="text"
-                        name="name"
-                        placeholder="Pet Name"
-                        value={pet.name}
-                        onChange={handleChange}
-                        required
-                    />
-
-                    {/* ROW 1: Type & Breed */}
-                    <div style={{ display: 'flex', gap: '15px' }}>
-                        <select name="type" value={pet.type} onChange={handleChange} required>
-                            {petTypes.map(t => <option key={t} value={t}>{t}</option>)}
-                        </select>
-                        <input
-                            type="text"
-                            name="breed"
-                            placeholder="Breed"
-                            value={pet.breed}
-                            onChange={handleChange}
-                            required
-                        />
+                    <div className="form-row">
+                        <input name="name" placeholder="Pet Name" onChange={handleChange} required />
+                        <input name="breed" placeholder="Breed" onChange={handleChange} required />
                     </div>
 
-                    {/* ROW 2: Age & Gender */}
-                    <div style={{ display: 'flex', gap: '15px' }}>
+                    <div className="form-row three-cols">
+                        <input name="age" type="number" placeholder="Age" onChange={handleChange} required />
 
-                        {/* CHANGED: Number Input for Age */}
-                        <input
-                            type="number"
-                            name="age"
-                            placeholder="Age (years)"
-                            min="0"
-                            max="30"
-                            value={pet.age}
-                            onChange={handleChange}
-                            required
-                            style={{ flex: 1 }} // Ensures it takes equal width in flex row
-                        />
+                        <div className="select-container">
+                            <select name="type" onChange={handleChange} value={formData.type}>
+                                <option value="Dog">Dog</option>
+                                <option value="Cat">Cat</option>
+                                <option value="Bird">Bird</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
 
-                        <select name="gender" value={pet.gender} onChange={handleChange} required style={{ flex: 1 }}>
-                            {genders.map(g => <option key={g} value={g}>{g}</option>)}
-                        </select>
+                        <div className="select-container">
+                            <select name="gender" onChange={handleChange} value={formData.gender}>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                        </div>
                     </div>
 
-                    <input
-                        type="text"
-                        name="color"
-                        placeholder="Color (e.g. Black, Golden)"
-                        value={pet.color}
-                        onChange={handleChange}
-                        required
-                    />
+                    <div className="image-upload-section">
+                        <label className="upload-btn">
+                            <FaCloudUploadAlt size={20} />
+                            <span>Upload Photos (Max 3)</span>
+                            <input
+                                type="file"
+                                multiple
+                                accept="image/*"
+                                onChange={handleImageChange}
+                                style={{ display: 'none' }}
+                            />
+                        </label>
 
-                    <textarea
-                        name="description"
-                        placeholder="Description (personality, story...)"
-                        value={pet.description}
-                        onChange={handleChange}
-                        required
-                    />
+                        {images.length > 0 && (
+                            <div className="preview-grid">
+                                {images.map((img, index) => (
+                                    <div key={index} className="preview-card">
+                                        <img src={img} alt="preview" />
+                                        <button type="button" onClick={() => removeImage(index)}>
+                                            <FaTimes />
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
 
-                    <input
-                        type="text"
-                        name="image"
-                        placeholder="Image URL (Optional)"
-                        value={pet.image}
-                        onChange={handleChange}
-                    />
+                    <textarea name="description" placeholder="Tell us about the pet..." onChange={handleChange} required />
 
                     <button type="submit" className="submit-btn" disabled={loading}>
-                        {loading ? "Publishing..." : "Publish Listing"}
+                        {loading ? "Saving..." : "List Pet"}
                     </button>
                 </form>
-
-                <button className="back-btn" type="button" onClick={() => navigate(-1)}>
-                    Cancel
-                </button>
             </div>
         </div>
     );

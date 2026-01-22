@@ -3,6 +3,7 @@ package com.example.petpal.entity;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -18,7 +19,7 @@ public class Pet {
     private String imageUrl;
     private String adoptionStatus;  // AVAILABLE/PENDING/ADOPTED
     private String ownerId;         // Reference by ID
-    private List<String> images;    // URLs only
+    private List<String> images = new ArrayList<>();    // URLs only
 
     public Pet() {}
 }
