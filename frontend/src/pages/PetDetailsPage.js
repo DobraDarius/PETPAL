@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
-import Navbar from "../components/Navbar";
 import { FaArrowLeft, FaMars, FaVenus, FaEnvelope, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import "./PetDetailsPage.css";
 
@@ -60,7 +59,6 @@ const PetDetailsPage = () => {
 
     return (
         <div className="pet-details-container">
-            <Navbar />
 
             <div className="details-wrapper">
                 <button className="back-btn" onClick={() => navigate(-1)}>
